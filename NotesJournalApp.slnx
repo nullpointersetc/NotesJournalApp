@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="NotesBackEnd/NotesBackEnd.csproj" />
+  <Project Path="NotesDomain/NotesDomain.csproj" />
+  <Project Path="NotesHandlers/NotesHandlers.csproj" />
+  <Project Path="NotesStorage/NotesStorage.csproj" />
+</Solution>
