@@ -20,7 +20,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace NullPointersEtc.NotesJournalApp.Entities;
 
-interface IUserRepository
+public interface IUserRepository
 {
     Task_User CreateAsync(User user);
     Task_Optional_User GetByIdAsync(Guid userID);
