@@ -2,6 +2,9 @@
 #pragma warning disable IDE0130, IDE0240
 #nullable enable
 
+using EmailAddress =
+    System.ComponentModel.DataAnnotations.EmailAddressAttribute;
+
 namespace NullPointersEtc.NotesJournalApp.UserEntity;
 
 #region class User - the actual entity class
@@ -33,6 +36,7 @@ public class User
                 : throw new UserNameIsNotValidException();
     }
 
+    [EmailAddress]
     public string EMail
     {
         get => myEMail ?? throw new UserEMailIsNotSetException();
@@ -66,10 +70,16 @@ public class User
             && eMail.Contains('@');
 
     private System.Guid? myGuid = null;
+
     private string? myIdentifier = null;
+
     private string? myName = null;
+
+    [EmailAddress]
     private string? myEMail = null;
+
     private System.DateTime? myCreatedAt = null;
+
     private System.DateTime? myUpdatedAt = null;
 }
 #endregion class Entity
