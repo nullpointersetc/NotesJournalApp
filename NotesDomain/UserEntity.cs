@@ -1,46 +1,10 @@
-#region class Entities.User
-#pragma warning disable IDE0240
+#region namespace UserEntity
+#pragma warning disable IDE0130, IDE0240
 #nullable enable
 
-using UserIdIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserIdIsNotSetException;
+namespace NullPointersEtc.NotesJournalApp.UserEntity;
 
-using UserIdentifierIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserIdentifierIsNotSetException;
-
-using UserIdentifierIsEmptyException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserIdentifierIsEmptyException;
-
-using UserIdentifierIsNotValidException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserIdentifierIsNotValidException;
-
-using UserNameIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserNameIsNotSetException;
-
-using UserNameIsEmptyException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserNameIsEmptyException;
-
-using UserNameIsNotValidException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserNameIsNotValidException;
-
-using UserEMailIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserEMailIsNotSetException;
-
-using UserEMailIsEmptyException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserEMailIsEmptyException;
-
-using UserEMailIsNotValidException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserEMailIsNotValidException;
-
-using UserCreatedAtIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserCreatedAtIsNotSetException;
-
-using UserUpdatedAtIsNotSetException =
-    NullPointersEtc.NotesJournalApp.Exceptions.UserUpdatedAtIsNotSetException;
-
-#pragma warning disable IDE0130
-namespace NullPointersEtc.NotesJournalApp.Entities;
-
+#region class User - the actual entity class
 public class User
 {
     public Guid Id
@@ -108,7 +72,104 @@ public class User
     private System.DateTime? myCreatedAt = null;
     private System.DateTime? myUpdatedAt = null;
 }
+#endregion class Entity
 
 
+#region interface IUserRepository - what Storage layer needs
+public interface IUserRepository
+{
+    System.Threading.Tasks.Task<User>
+        CreateAsync(User user);
 
-#endregion class Entities.User
+    System.Threading.Tasks.Task<User>
+        GetByIdAsync(Guid userID);
+
+    System.Threading.Tasks.Task<User>
+        GetByIdentifierAsync(string identifier);
+
+    System.Threading.Tasks.Task<User>
+        GetByDisplayAsync(string display);
+
+    System.Threading.Tasks.Task<
+        System.Collections.Generic.IEnumerable<User>>
+        GetAllUsersAsync();
+
+    System.Threading.Tasks.Task<User>
+        UpdateAsync(User user);
+
+    System.Threading.Tasks.Task DeleteAsync(Guid userID);
+}
+#endregion interface IUserRepository
+
+
+#region Exception classes
+public class UserIdIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User Id must be set first"; }
+}
+
+
+public class UserIdentifierIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User Identifier must be set first"; }
+}
+
+
+public class UserIdentifierIsEmptyException : System.ArgumentException
+{
+    public override string Message { get => "User Identifier must not be empty"; }
+}
+
+
+public class UserIdentifierIsNotValidException : System.ArgumentException
+{
+    public override string Message { get => "User Identifier must be a legal C# identifier"; }
+}
+
+
+public class UserNameIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User Name must be set first"; }
+}
+
+
+public class UserNameIsEmptyException : System.ArgumentException
+{
+    public override string Message { get => "User Name must not be empty"; }
+}
+
+
+public class UserNameIsNotValidException : System.ArgumentException
+{
+    public override string Message { get => "User Name must be valid"; }
+}
+
+
+public class UserEMailIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User EMail must be set first"; }
+}
+
+
+public class UserEMailIsEmptyException : System.ArgumentException
+{
+    public override string Message { get => "User EMail must not be empty"; }
+}
+
+public class UserEMailIsNotValidException : System.ArgumentException
+{
+    public override string Message { get => "User EMail must be of the form username@example.com"; }
+}
+
+public class UserCreatedAtIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User CreatedAt must be set first"; }
+}
+
+
+public class UserUpdatedAtIsNotSetException : System.InvalidOperationException
+{
+    public override string Message { get => "User UpdatedAt must be set first"; }
+}
+#endregion Exception classes
+#endregion namespace UserEntity
