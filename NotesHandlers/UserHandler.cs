@@ -48,6 +48,11 @@ public class UserHandler : IUserHandler
             string identifier) =>
         myRepo.GetByIdentifierAsync(identifier);
 
+    System.Threading.Tasks.Task<User>
+        IUserHandler.GetByDisplayAsync(
+            string display) =>
+        myRepo.GetByDisplayAsync(display);
+
     System.Threading.Tasks.Task<
         System.Collections.Generic.IEnumerable<User>>
         IUserHandler.GetAllAsync() =>
@@ -59,13 +64,13 @@ public class UserHandler : IUserHandler
             string display,
             string eMail)
     {
-        User existing = await myRepo.GetByIdAsync(userID);
+        User user1 = await myRepo.GetByIdAsync(userID);
 
-        existing.Display = display;
-        existing.EMail = eMail;
-        existing.UpdatedAt = DateTime.UtcNow;
+        user1.Display = display;
+        user1.EMail = eMail;
+        user1.UpdatedAt = DateTime.UtcNow;
 
-        return await myRepo.UpdateAsync(existing);
+        return await myRepo.UpdateAsync(user1);
     }
 
     public System.Threading.Tasks.Task

@@ -23,6 +23,9 @@ public interface IUserHandler
     System.Threading.Tasks.Task<User>
         GetByIdentifierAsync(string identifier);
 
+    System.Threading.Tasks.Task<User>
+        GetByDisplayAsync(string display);
+
     System.Threading.Tasks.Task<
         System.Collections.Generic.IEnumerable<User>>
         GetAllAsync();
