@@ -77,7 +77,8 @@ public class NotesBackEnd
             builder.Services.AddSingleton(
                 new NotesDbContextParams(useSqlServer: false))
                 .AddDbContext<NotesDbContext>(
-                options => options.UseSqlite("Data Source=notes.db"));
+                options => options.UseSqlite(
+                    builder.Configuration.GetConnectionString("NotesDb")));
 
         WebApplication app = builder.Build();
 
