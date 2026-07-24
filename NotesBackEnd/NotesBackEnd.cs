@@ -23,6 +23,10 @@ using WebApplicationBuilder =
 
 using NotesDbContext =
     NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContext;
+
+using NotesDbContextParams =
+    NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContextParams;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
@@ -31,18 +35,25 @@ public class NotesBackEnd
 {
     private static void Main(string[] args)
     {
-        bool sqlServerArg = args.Any(
-            arg => arg.Equals("--db=sqlserver",
+        string dbSqlServer = "--db=SqlServer";
+
+        bool useSqlServer = args.Any(
+            arg => arg.Equals(dbSqlServer,
             StringComparison.OrdinalIgnoreCase));
 
-        bool sqliteArg = args.Any(
-            arg => arg.Equals("--db=sqlite",
-            StringComparison.OrdinalIgnoreCase));
+        string dbSQLite = "--db=SQLite";
 
-        if (!sqlServerArg && !sqliteArg
-            || sqlServerArg && sqliteArg)
+        bool useSQLite = true/*args.Any(
+            arg => arg.Equals(dbSQLite,
+            StringComparison.OrdinalIgnoreCase))*/;
+
+        if (!useSqlServer && !useSQLite
+            || useSqlServer && useSQLite)
         {
-            Console.WriteLine("NotesBackEnd: must have one of --db=sqlserver or --db-sqlite");
+            Console.Write("NotesBackEnd: must use one of ");
+            Console.Write(dbSqlServer);
+            Console.Write(" or ");
+            Console.WriteLine(dbSQLite);
             return;
         }
 
@@ -55,15 +66,18 @@ public class NotesBackEnd
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddOpenApi();
 
-        if (sqlServerArg)
-            builder.Services.AddDbContext<NotesDbContext>(
+        if (useSqlServer)
+            builder.Services.AddSingleton(
+                new NotesDbContextParams(useSqlServer: true))
+                .AddDbContext<NotesDbContext>(
                 options => options.UseSqlServer(
                     builder.Configuration.GetConnectionString("AzureSql")));
 
-        if (sqliteArg)
-            builder.Services.AddDbContext<NotesDbContext>(
-                options => options.UseSqlite(
-                    "Data Source=notes.db"));
+        if (useSQLite)
+            builder.Services.AddSingleton(
+                new NotesDbContextParams(useSqlServer: false))
+                .AddDbContext<NotesDbContext>(
+                options => options.UseSqlite("Data Source=notes.db"));
 
         WebApplication app = builder.Build();
 
@@ -74,33 +88,8 @@ public class NotesBackEnd
         }
 
         app.UseHttpsRedirection();
-
-        var summaries = new[]
-        {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-        app.MapGet("/weatherforecast", () =>
-        {
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-                .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast");
-
         app.Run();
     }
-}
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
 
 #endregion class NotesBackEnd
