@@ -1,8 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- NotesStorage project - the Infrastructure layer -->
+  <!-- File: NotesDbContext.cs -->
+  <!-- File: NoteRepository.cs -->
+  <!-- File: UserRepository.cs -->
 
   <ItemGroup>
     <ProjectReference Include="..\NotesDomain\NotesDomain.csproj" />
     <ProjectReference Include="..\NotesHandlers\NotesHandlers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
   </ItemGroup>
 
   <PropertyGroup>
