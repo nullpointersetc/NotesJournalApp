@@ -1,4 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- NotesHandlers project - The Application layer -->
+  <!-- File: INoteHandler.cs -->
+  <!-- File: NoteHandler.cs -->
+  <!-- File: IUserHandler.cs -->
+  <!-- File: UserHandler.cs -->
+  <!-- File: NotesHandlers.README.md -->
 
   <ItemGroup>
     <ProjectReference Include="..\NotesDomain\NotesDomain.csproj" />
