@@ -1,4 +1,4 @@
-#region "NoteEntity.cs"
+#region "NotesDomain/NoteEntity.cs"
 #pragma warning disable IDE0001, IDE0130, IDE0240
 #nullable enable
 
@@ -173,4 +173,4 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
     }
     #endregion
 }
-#endregion "NoteEntity.cs"
+#endregion "NotesDomain/NoteEntity.cs"
