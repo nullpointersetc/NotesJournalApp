@@ -20,7 +20,12 @@ namespace NullPointersEtc.NotesJournalApp.NotesStorage
 {
     public class UserRepository : IUserRepository
     {
-        public UserRepository(NotesDbContext db)
+        public UserRepository(NotesDbContextForSqlite db)
+        {
+            db1 = db;
+        }
+
+        public UserRepository(NotesDbContextForSqlServer db)
         {
             db1 = db;
         }

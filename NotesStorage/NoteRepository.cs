@@ -20,9 +20,14 @@ namespace NullPointersEtc.NotesJournalApp.NotesStorage
 {
     public class NoteRepository : INoteRepository
     {
-        public NoteRepository(NotesDbContext db)
+        public NoteRepository(NotesDbContextForSqlite db)
         {
             db1 = db;
+        }
+
+        public NoteRepository(NotesDbContextForSqlServer db)
+        {
+            db1=db;
         }
 
         async System.Threading.Tasks.Task<Note>
