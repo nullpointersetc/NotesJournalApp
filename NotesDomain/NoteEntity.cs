@@ -81,6 +81,10 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
     {
         System.Threading.Tasks.Task<Note> CreateAsync(Note note);
 
+        System.Threading.Tasks.Task<
+            System.Collections.Generic.IEnumerable<Note>>
+            GetAllAsync();
+
         System.Threading.Tasks.Task<Note> GetAsync(System.Guid id);
 
         System.Threading.Tasks.Task<
