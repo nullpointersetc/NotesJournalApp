@@ -1,5 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
+  <!-- NotesBackEnd project - The REST API layer -->
+  <!-- File: "NotesBackEnd.cs" -->
+  <!-- File: "NotesRestAPI.cs" -->
+  <!-- File: "UsersRestAPI.cs" -->
+  <!-- File: "appsettings.json" -->
+  <!-- File: "appsettings.Development.json" -->
+  <!-- File: "Properties/launchSettings.json" -->
+  
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -7,6 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.6" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
   </ItemGroup>
 
