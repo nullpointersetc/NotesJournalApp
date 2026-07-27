@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="NotesBackEnd/NotesBackEnd.csproj" />
+  <Project Path="NotesBlazorFront/NotesBlazorFront.csproj" Id="21b34fb5-c56d-4766-98d3-69c0ddf1b97a" />
   <Project Path="NotesDomain/NotesDomain.csproj" />
   <Project Path="NotesHandlers/NotesHandlers.csproj" />
   <Project Path="NotesStorage/NotesStorage.csproj" />

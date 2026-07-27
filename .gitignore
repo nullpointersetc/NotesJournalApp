@@ -1,8 +1,16 @@
 /NotesBackEnd/bin
 /NotesBackEnd/obj
+/NotesBackEnd/NotesBackEnd.csproj.user
+/NotesBlazorFront/bin
+/NotesBlazorFront/obj
 /NotesDomain/bin
 /NotesDomain/obj
+/NotesDomain/NotesDomain.csproj.user
 /NotesHandlers/bin
 /NotesHandlers/obj
+/NotesHandlers/NotesDomain.csproj.user
 /NotesStorage/bin
 /NotesStorage/obj
+/NotesStorage/NotesStorage.csproj.user
+/.vs
+/NotesBlazorFront/wwwroot/lib/bootstrap/dist
