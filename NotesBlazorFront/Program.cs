@@ -1,6 +1,6 @@
-using NotesBlazorFront.Components;
+using NullPointersEtc.NotesJournalApp.NotesBlazorFront.Components;
 
-namespace NotesBlazorFront
+namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
 {
     public class Program
     {
