@@ -55,13 +55,29 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
         public DateTime CreatedAt
         {
             get => createdDate1 ?? throw new NoteCreationDateIsNotSetException();
-            set => createdDate1 = value;
+
+            set
+            {
+                if (createdDate1 is null)
+                    createdDate1 = value;
+                else
+                    throw new NoteCreationDateAlreadySetException();
+            }
         }
 
         public DateTime LastUpdatedAt
         {
             get => lastUpdateDate1 ?? throw new NoteLastModifiedDateIsNotSetException();
-            set => lastUpdateDate1 = value;
+
+            set
+            {
+                if (lastUpdateDate1 is null)
+                    lastUpdateDate1 = value;
+                else if (value > lastUpdateDate1)
+                    lastUpdateDate1 = value;
+                else
+                    throw new NoteLastModifiedDateAlreadyLaterException();
+            }
         }
 
         private System.Guid? noteId1 = null;
@@ -174,6 +190,22 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
     public class NoteCreationDateIsNotSetException : System.InvalidOperationException
     {
         public override string Message { get => "Note CreatedAt must be set first"; }
+    }
+    #endregion
+
+
+    #region "Exception class NoteCreationDateAlreadySetException"
+    public class NoteCreationDateAlreadySetException : System.InvalidOperationException
+    {
+        public override string Message { get => "CreatedAt cannot be changed (Data Integrity)"; }
+    }
+    #endregion
+
+
+    #region "Exception class NoteLastModifiedDateAlreadyLaterException"
+    public class NoteLastModifiedDateAlreadyLaterException : System.InvalidOperationException
+    {
+        public override string Message { get => "LastModifiedAt cannot go backwards in time (Data Integrity)"; }
     }
     #endregion
 }
