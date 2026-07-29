@@ -12,6 +12,20 @@ namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddScoped(sp =>
+            {
+                string NotesBackEndURL = "https://localhost:7023";
+
+                HttpClient client = new()
+                {
+                    BaseAddress = new Uri(NotesBackEndURL)
+                };
+                return client;
+            });
+
+            builder.Services.AddScoped<
+                NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services.NotesApiClient>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
