@@ -1,8 +1,6 @@
 ﻿#region "NotesApiClient.cs"
 #pragma warning disable IDE0290, IDE0301
 
-using System.Net.Http.Json;
-
 using NoteDTO = NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO;
 
 using CreateNoteDTO =
@@ -10,6 +8,21 @@ using CreateNoteDTO =
 
 using UpdateNoteDTO =
     NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.UpdateNoteDTO;
+
+using Task_Nullable_NoteDTO_t = System.Threading.Tasks.Task<
+        NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO?>;
+
+using Task_IEnumerable_NoteDTO_t =
+    System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO>>;
+
+using IEnumerable_NoteDTO_t =
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO>;
+
+using Guid = System.Guid;
+using HttpClient = System.Net.Http.HttpClient;
+using Task = System.Threading.Tasks.Task;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services;
 
@@ -20,24 +33,23 @@ public class NotesApiClient
         http1 = http;
     }
 
-    public async System.Threading.Tasks.Task<
-        System.Collections.Generic.IEnumerable<NoteDTO>> GetAllAsync()
+
+    public async Task_IEnumerable_NoteDTO_t GetAllAsync()
     {
         return await http1.GetFromJsonAsync<
-            System.Collections.Generic.IEnumerable<NoteDTO>>(
-                "api/notes") ?? Enumerable.Empty<NoteDTO>();
+            IEnumerable_NoteDTO_t>("api/notes")
+                ?? Enumerable.Empty<NoteDTO>();
     }
 
-    public async System.Threading.Tasks.Task<
-        NoteDTO?> GetAsync(System.Guid noteID)
+
+    public async Task_Nullable_NoteDTO_t GetAsync(Guid noteID)
     {
         return await http1.GetFromJsonAsync<NoteDTO>(
             "api/notes/" + noteID);
     }
 
 
-    public async System.Threading.Tasks.Task<
-        System.Collections.Generic.IEnumerable<NoteDTO>>
+    public async Task_IEnumerable_NoteDTO_t
         SearchAsync(string query)
     {
         return await http1.GetFromJsonAsync<
@@ -47,8 +59,8 @@ public class NotesApiClient
     }
 
 
-    public async System.Threading.Tasks.Task<
-        NoteDTO?> CreateAsync(string title, string body)
+    public async Task_Nullable_NoteDTO_t CreateAsync(
+        string title, string body)
     {
         CreateNoteDTO payload = new(Title: title, Body: body);
 
@@ -58,8 +70,9 @@ public class NotesApiClient
         return await response.Content.ReadFromJsonAsync<NoteDTO>();
     }
 
-    public async System.Threading.Tasks.Task<NoteDTO?>
-        UpdateAsync(System.Guid noteID,
+
+    public async Task_Nullable_NoteDTO_t
+        UpdateAsync(Guid noteID,
             string title, string body)
     {
         UpdateNoteDTO payload = new(Title: title, Body: body);
@@ -70,10 +83,10 @@ public class NotesApiClient
         return await response.Content.ReadFromJsonAsync<NoteDTO>();
     }
 
-    public async System.Threading.Tasks.Task
-        DeleteAsync(System.Guid noteID)
+
+    public async Task DeleteAsync(Guid noteID)
     {
-        await http1.DeleteAsync("api/notes/"+noteID);
+        await http1.DeleteAsync("api/notes/" + noteID);
     }
 
     private readonly HttpClient http1;
