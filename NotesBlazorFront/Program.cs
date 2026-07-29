@@ -1,5 +1,11 @@
 using NullPointersEtc.NotesJournalApp.NotesBlazorFront.Components;
 
+using NotesApiClient =
+    NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services.NotesApiClient;
+
+using UsersApiClient =
+    NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services.UsersApiClient;
+
 namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
 {
     public class Program
@@ -23,8 +29,8 @@ namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
                 return client;
             });
 
-            builder.Services.AddScoped<
-                NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services.NotesApiClient>();
+            builder.Services.AddScoped<NotesApiClient>();
+            builder.Services.AddScoped<UsersApiClient>();
 
             var app = builder.Build();
 
