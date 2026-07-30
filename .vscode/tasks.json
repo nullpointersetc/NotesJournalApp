@@ -41,7 +41,7 @@
             "type": "shell",
             "args": [
                 "run",
-                "/project:NotesBackEnd",
+                "--project:NotesBackEnd",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -57,7 +57,7 @@
             "type": "shell",
             "args": [
                 "run",
-                "/project:NotesBlazorFront",
+                "--project:NotesBlazorFront",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
