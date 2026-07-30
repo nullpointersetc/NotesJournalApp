@@ -1,0 +1,71 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build NotesBackEnd",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "./NotesBackEnd/NotesBackEnd.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build NotesBlazorFront",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "./NotesBlazorFront/NotesBlazorFront.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesBackEnd",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run",
+                "./NotesBackEnd/NotesBackEnd.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesBlazorFront",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run",
+                "./NotesBlazorFront/NotesBlazorFront.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
