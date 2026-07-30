@@ -1,0 +1,99 @@
+@using System.Runtime.InteropServices
+@using NoteDTO = NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO
+
+@if (Note is null)
+{
+    <div class="alert alert-info">
+        Select a note from the list or create a new one.
+    </div>
+}
+else
+{
+    <EditForm Model="editModel" OnValidSubmit="HandleSave">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <InputText class="form-control" @bind-Value="editModel.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Body</label>
+            <InputTextArea class="form-control" @bind-Value="editModel.Body" rows="8" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Save</button>
+
+            @if (Note.Id != Guid.Empty)
+            {
+                <button class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public NoteDTO? Note { get; set; }
+
+
+    [Parameter]
+    public EventCallback<
+        System.Tuple<System.Guid,string,string>> OnSave
+    {
+        get;
+        set;
+    }
+
+
+    [Parameter]
+    public EventCallback<Guid> OnDelete
+    {
+        get;
+        set;
+    }
+
+
+    private EditModel editModel = new();
+
+
+    protected override void OnParametersSet()
+    {
+        if (Note is null)
+        {
+            editModel = new EditModel();
+        }
+        else
+        {
+            editModel = new EditModel
+            {
+                Id=Note.Id,
+                Title=Note.Title,
+                Body=Note.Body
+            };
+        }
+    }
+
+
+    private async Task HandleSave()
+    {
+        await OnSave.InvokeAsync(
+            System.Tuple.Create(editModel.Id,
+            editModel.Title, editModel.Body));
+    }
+
+
+    private async Task HandleDelete()
+    {
+        await OnDelete.InvokeAsync(editModel.Id);
+    }
+
+
+    private class EditModel
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Body { get; set; } = "";
+    }
+}

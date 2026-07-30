@@ -1,3 +1,7 @@
 .list-group-item {
     cursor: pointer;
 }
+
+textarea.form-control {
+    font-family:Consolas,monospace;
+}
