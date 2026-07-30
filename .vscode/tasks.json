@@ -9,7 +9,7 @@
             "type": "shell",
             "args": [
                 "build",
-                "./NotesBackEnd/NotesBackEnd.csproj",
+                "--project:./NotesBackEnd/NotesBackEnd.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -25,7 +25,7 @@
             "type": "shell",
             "args": [
                 "build",
-                "./NotesBlazorFront/NotesBlazorFront.csproj",
+                "--project:./NotesBlazorFront/NotesBlazorFront.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -41,7 +41,7 @@
             "type": "shell",
             "args": [
                 "run",
-                "./NotesBackEnd/NotesBackEnd.csproj",
+                "--project:./NotesBackEnd/NotesBackEnd.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -57,7 +57,7 @@
             "type": "shell",
             "args": [
                 "run",
-                "./NotesBlazorFront/NotesBlazorFront.csproj",
+                "--project:./NotesBlazorFront/NotesBlazorFront.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
