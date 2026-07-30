@@ -18,5 +18,5 @@
 @code {
     [Parameter] public System.Collections.Generic.IEnumerable<NoteDTO> Notes { get; set; }
     [Parameter] public NoteDTO? SelectedNote { get; set; }
-    [Parameter] public EventCallback<Guid> { get; set; }
+    [Parameter] public EventCallback<Guid> OnSelect { get; set; }
 }
