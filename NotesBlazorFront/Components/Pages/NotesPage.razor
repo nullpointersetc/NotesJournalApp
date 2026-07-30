@@ -11,7 +11,9 @@
     </div>
 
     <div class="col-8">
-        <NoteEditor Note="NotesState.SelectedNote" OnSave="HandleSave" OnDelete="HandleDelete" />
+        <NoteEditor Note="NotesState.SelectedNote"
+            OnSave="HandleSave"
+            OnDelete="HandleDelete" />
     </div>
 </div>
 
@@ -35,12 +37,14 @@
     }
 
     private async Task HandleSave(
-        Guid id, string title, string body)
+        System.Tuple<System.Guid,string,string> data)
     {
-        if (id == Guid.Empty)
-            await NotesState.CreateAsync(title, body);
+        if (data.Item1 == Guid.Empty)
+            await NotesState.CreateAsync(
+                data.Item2, data.Item3);
         else
-            await NotesState.UpdateAsync(id, title, body);
+            await NotesState.UpdateAsync(
+                data.Item1, data.Item2, data.Item3);
     }
 
     private async Task HandleDelete(Guid id)
