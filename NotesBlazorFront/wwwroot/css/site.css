@@ -5,3 +5,7 @@
 textarea.form-control {
     font-family:Consolas,monospace;
 }
+
+input.form-control {
+    font-size: 1rem;
+}

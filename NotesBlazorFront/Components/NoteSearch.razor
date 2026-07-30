@@ -1,0 +1,24 @@
+﻿﻿<!-- NoteSearch.razor -->
+<div class="mb-3">
+    <input class="form-control" placeholder="Search notes..." @bind="searchText" @bind:event="oninput"
+           @onkeydown="HandleKeyDown" />
+
+    <button class="btn btn-secondary mt-2" @onclick="() => OnSearch.InvokeAsync(searchText)">Search</button>
+</div>
+
+@code {
+    private string searchText = "";
+
+    [Parameter]
+    public EventCallback<string> OnSearch
+    {
+        get; set;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await OnSearch.InvokeAsync(searchText);
+    }
+}
+<!-- NoteSearch.razor -->
