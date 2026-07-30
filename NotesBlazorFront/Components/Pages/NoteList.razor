@@ -1,0 +1,22 @@
+@using NoteDTO = NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.NoteDTO
+
+<div class="list-group">
+    @foreach (NoteDTO note in Notes)
+    {
+        var isSelected = SelectedNote?.Id == note.Id;
+
+        <button class="list-group-item list-group-item-action @(isSelected ? "active" : "")"
+                @onclick="() => OnSelect.InvokeAsync(note.Id)">
+            <div class="fw-bold">@note.Title</div>
+            <div class="text-muted small">
+                @note.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+            </div>
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public System.Collections.Generic.IEnumerable<NoteDTO> Notes { get; set; }
+    [Parameter] public NoteDTO? SelectedNote { get; set; }
+    [Parameter] public EventCallback<Guid> { get; set; }
+}
