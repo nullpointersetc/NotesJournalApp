@@ -16,7 +16,8 @@
 </div>
 
 @code {
-    [Parameter] public System.Collections.Generic.IEnumerable<NoteDTO> Notes { get; set; }
+    [Parameter] public System.Collections.Generic.IEnumerable<NoteDTO> Notes { get; set; } = new
+        System.Collections.Generic.List<NoteDTO>();
     [Parameter] public NoteDTO? SelectedNote { get; set; }
     [Parameter] public EventCallback<Guid> OnSelect { get; set; }
 }
