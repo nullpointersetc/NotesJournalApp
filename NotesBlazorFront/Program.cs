@@ -1,4 +1,8 @@
-using NullPointersEtc.NotesJournalApp.NotesBlazorFront.Components;
+using App =
+    NullPointersEtc.NotesJournalApp.NotesBlazorFront.Components.App;
+
+using NotesState =
+    NullPointersEtc.NotesJournalApp.NotesBlazorFront.States.NotesState;
 
 using NotesApiClient =
     NullPointersEtc.NotesJournalApp.NotesBlazorFront.Services.NotesApiClient;
@@ -31,6 +35,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
 
             builder.Services.AddScoped<NotesApiClient>();
             builder.Services.AddScoped<UsersApiClient>();
+            builder.Services.AddScoped<NotesState>();
 
             var app = builder.Build();
 

@@ -1,0 +1,56 @@
+@page "/notes"
+@inject NullPointersEtc.NotesJournalApp.NotesBlazorFront.States.NotesState NotesState
+
+<h1 class="mb-3">Notes</h1>
+
+<div class="row">
+    <div class="col-4">
+        <NoteSearch OnSearch="HandleSearch" />
+
+        <NoteList Notes="NotesState.Notes" SelectedNote="NotesState.SelectedNote" OnSelect="HandleSelect" />
+    </div>
+
+    <div class="col-8">
+        <NoteEditor Note="NotesState.SelectedNote" OnSave="HandleSave" OnDelete="HandleDelete" />
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        NotesState.OnChange += StateChanged;
+        await NotesState.LoadAsync();
+    }
+
+    private void StateChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task HandleSearch(string query)
+    {
+        await NotesState.SearchAsync(query);
+    }
+
+    private async Task HandleSelect(Guid id)
+    {
+        await NotesState.SelectAsync(id);
+    }
+
+    private async Task HandleSave(
+        Guid id, string title, string body)
+    {
+        if (id == Guid.Empty)
+            await NotesState.CreateAsync(title, body);
+        else
+            await NotesState.UpdateAsync(id, title, body);
+    }
+
+    private async Task HandleDelete(Guid id)
+    {
+        await NotesState.DeleteAsync(id);
+    }
+
+
+    public void Dispose()
+    {
+        NotesState.OnChange -= StateChanged;
+    }
+}
