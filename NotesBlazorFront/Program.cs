@@ -24,7 +24,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesBlazorFront
 
             builder.Services.AddScoped(sp =>
             {
-                string NotesBackEndURL = "https://localhost:7023";
+                string NotesBackEndURL = "http://localhost:7701";
 
                 HttpClient client = new()
                 {
