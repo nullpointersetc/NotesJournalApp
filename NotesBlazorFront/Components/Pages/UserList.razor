@@ -1,0 +1,29 @@
+<!-- UserList.razor -->
+@using UsersState = NullPointersEtc.NotesJournalApp.NotesBlazorFront.States.UsersState
+
+@using UserDTO = NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.UserDTO
+
+<div class="list-group">
+    @foreach (UserDTO user in Users)
+    {
+        bool isSelected = SelectedUser?.UserID == user.UserID;
+
+        <button class="list-group-item list-group-item-action
+            @(isSelected ? "active" : "")"
+            @onclick="() => OnSelect.InvokeAsync(user.UserID)">
+            <div class="fw-bold">@user.Display</div>
+            <div class="text-muted small">@user.EMail</div>
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public System.Collections.Generic.IEnumerable<UserDTO>
+        Users { get; set; } = new System.Collections.Generic.List<UserDTO>();
+
+    [Parameter] public UserDTO? SelectedUser { get; set; }
+
+    [Parameter] public EventCallback<System.Guid> OnSelect { get; set; } 
+}
+
+<!-- UserList.razor -->

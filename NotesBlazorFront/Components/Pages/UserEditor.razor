@@ -1,0 +1,102 @@
+<!-- UserEditor.razor -->
+
+@using UserDTO = NullPointersEtc.NotesJournalApp.NotesBlazorFront.Models.UserDTO
+
+@if (User is null)
+{
+    <div class="alert alert-info">
+        Select a user from the list or create a new one.
+    </div>
+}
+else
+{
+    <EditForm Model="editModel" OnValidSubmit="Handle_Save_User">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Identifier</label>
+            <InputText class="form-control" @bind-Value="editModel.Item2" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Display Name</label>
+            <InputText class="form-control" @bind-Value="editModel.Item3" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <InputText class="form-control" @bind-Value="editModel.Item4" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public UserDTO? User { get; set; }
+
+    [Parameter]
+    public EventCallback<
+        System.Tuple<Guid, string, string, string>>
+        OnSave
+    { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid>
+        OnDelete
+    { get; set; }
+
+    public class EditModel_t
+    {
+        public EditModel_t()
+        {
+            Item1 = System.Guid.Empty;
+            Item2 = Item3 = Item4 = string.Empty;
+        }
+
+        public EditModel_t(System.Guid item1,
+            string item2, string item3, string item4)
+        {
+            Item1 = item1;
+            Item2 = item2;
+            Item3 = item3;
+            Item4 = item4;
+        }
+
+        public System.Guid Item1;
+        public string Item2;
+        public string Item3;
+        public string Item4;
+    }
+
+
+    private EditModel_t editModel = new EditModel_t();
+
+    protected override void OnParametersSet()
+    {
+        if (User is null)
+        {
+            editModel = new EditModel_t();
+        }
+        else
+        {
+            editModel = new EditModel_t(
+                item1: User.UserID, item2: User.Identifier,
+                item3: User.Display, item4: User.EMail);
+        }
+    }
+
+    private async Task Handle_Save_User()
+    {
+        await OnSave.InvokeAsync(System.Tuple.Create(
+            item1: editModel.Item1,
+            item2: editModel.Item2,
+            item3: editModel.Item3,
+            item4: editModel.Item4));
+    }
+}
+
+<!-- UserEditor.razor -->

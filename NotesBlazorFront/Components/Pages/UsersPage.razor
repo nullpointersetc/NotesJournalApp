@@ -1,16 +1,17 @@
 <!-- UsersPage.razor -->
 @page "/users"
+
 @inject NullPointersEtc.NotesJournalApp.NotesBlazorFront.States.UsersState UsersState
 
 <h1 class="mb-3">Users</h1>
 
 <div class="row">
     <div class="col-4">
-        <UserList Users="UserState.Users" SelectedUser="UsersState.SelectedUser" OnSelect="HandleSelect" />
+        <UserList Users="UsersState.Users" SelectedUser="UsersState.SelectedUser" OnSelect="HandleSelect" />
     </div>
 
     <div class="col-8">
-        <UserEditor User="UsersState.SelectedUser" OnSave="HandleSave" OnDelete="HandleDelete" />
+        <UserEditor User="UsersState.SelectedUser" OnSave="HandleSave" />
     </div>
 </div>
 
@@ -29,8 +30,9 @@
     }
 
     private async Task HandleSave(
-        System.Tuple<System.Guid, string, string, string> data)
+        /* System.Tuple<System.Guid, string, string, string> data */)
     {
+        /*
         if (data.Item1 == System.Guid.Empty)
             await UsersState.CreateAsync(
                 identifier: data.Item2,
@@ -38,11 +40,7 @@
         else
             await UsersState.UpdateAsync(userID: data.Item1,
                 display: data.Item3, eMail: data.Item4);
-    }
-
-    private async Task HandleDelete(Guid id)
-    {
-        await UsersState.DeleteAsync(id);
+                */
     }
 
     public void Dispose()
