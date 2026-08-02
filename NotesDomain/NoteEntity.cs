@@ -55,13 +55,31 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
         public DateTime CreatedAt
         {
             get => createdDate1 ?? throw new NoteCreationDateIsNotSetException();
-            set => createdDate1 = value;
+
+            set
+            {
+                if (createdDate1 is null)
+                    createdDate1 = value;
+                else if (createdDate1 == value)
+                    return;
+                else
+                    throw new NoteCreationDateIsNotModifiableException();
+            }
         }
 
         public DateTime LastUpdatedAt
         {
             get => lastUpdateDate1 ?? throw new NoteLastModifiedDateIsNotSetException();
-            set => lastUpdateDate1 = value;
+
+            set
+            {
+                if (lastUpdateDate1 is null)
+                    lastUpdateDate1 = value;
+                else if (lastUpdateDate1 < value)
+                    lastUpdateDate1 = value;
+                else if (LastUpdatedAt > value)
+                    throw new NoteLastModifiedDateCannotGoBackInTimeException();
+            }
         }
 
         private System.Guid? noteId1 = null;
@@ -169,11 +187,25 @@ namespace NullPointersEtc.NotesJournalApp.NoteEntity
     }
     #endregion
 
+    #region "Exception class NoteLastModifiedDateCannotGoBackInTimeException : System.InvalidOperationException"
+    public class NoteLastModifiedDateCannotGoBackInTimeException : System.InvalidOperationException
+    {
+        public override string Message { get => "Note LastUpdatedAt cannot be set to an earlier time.  This is a data-integrity issue"; }
+    }
+    #endregion
+
 
     #region "Exception class NoteCreationDateIsNotSetException"
     public class NoteCreationDateIsNotSetException : System.InvalidOperationException
     {
         public override string Message { get => "Note CreatedAt must be set first"; }
+    }
+    #endregion
+
+    #region "Exception class NoteCreationDateIsNotModifiableException"
+    public class NoteCreationDateIsNotModifiableException : System.InvalidOperationException
+    {
+        public override string Message { get => "Note CreatedAt cannot be changed. This is a data-integrity issue"; }
     }
     #endregion
 }
