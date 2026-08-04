@@ -76,7 +76,9 @@ namespace NullPointersEtc.NotesJournalApp.UserEntity
 
         public static bool IdentifierIsValid(string identifier)
             => identifier.Length >= 1
-                && identifier.Length <= MAX_USER_NAME_LENGTH;
+                && identifier.Length <= MAX_USER_NAME_LENGTH
+                && char.IsAsciiLetter(identifier[0])
+                && identifier.All(c => char.IsAsciiLetterOrDigit(c) || c == '_');
 
         public static bool NameIsValid(string name)
             => name.Length >= 1
