@@ -2,211 +2,223 @@
 #pragma warning disable IDE0001, IDE0130, IDE0240
 #nullable enable
 
+using DateTime = System.DateTime;
+using Guid = System.Guid;
 using Key = System.ComponentModel.DataAnnotations.KeyAttribute;
 using StringLength = System.ComponentModel.DataAnnotations.StringLengthAttribute;
+using InvalidOperationException = System.InvalidOperationException;
+using ArgumentException = System.ArgumentException;
 
-namespace NullPointersEtc.NotesJournalApp.NoteEntity
+using TaskReturningNote = System.Threading.Tasks.Task<
+    NullPointersEtc.NotesJournalApp.NoteEntity.Note>;
+
+using TaskReturningNotes = System.Threading.Tasks.Task<
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.NoteEntity.Note>>;
+
+using Task = System.Threading.Tasks.Task;
+
+namespace NullPointersEtc.NotesJournalApp.NoteEntity;
+
+public sealed class Note
 {
-
-    #region "Entity class Note"
-    public class Note
+    [property: Key]
+    public Guid NoteID
     {
-        [property: Key]
-        public System.Guid NoteID
-        {
-            get => noteId1 ?? throw new NoteIdIsNotSetException();
-            set => noteId1 = value;
-        }
-
-        [StringLength(maximumLength: MAX_TITLE_LENGTH,
-            MinimumLength = 1)]
-        public string Title
-        {
-            get => title1 ?? throw new NoteTitleIsNotSetException();
-
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new NoteTitleIsEmptyException();
-                else if (value.Length > MAX_TITLE_LENGTH)
-                    throw new NoteTitleIsTooLongException();
-                else
-                    title1 = value;
-            }
-        }
-
-        [StringLength(maximumLength: MAX_BODY_LENGTH,
-            MinimumLength = 1)]
-        public string Body
-        {
-            get => body1 ?? throw new NoteBodyIsNotSetException();
-
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new NoteBodyIsEmptyException();
-                else if (value.Length > MAX_BODY_LENGTH)
-                    throw new NoteBodyIsTooLongException();
-                else
-                    body1 = value;
-            }
-        }
-
-        public DateTime CreatedAt
-        {
-            get => createdDate1 ?? throw new NoteCreationDateIsNotSetException();
-
-            set
-            {
-                if (createdDate1 is null)
-                    createdDate1 = value;
-                else if (createdDate1 == value)
-                    return;
-                else
-                    throw new NoteCreationDateIsNotModifiableException();
-            }
-        }
-
-        public DateTime LastUpdatedAt
-        {
-            get => lastUpdateDate1 ?? throw new NoteLastModifiedDateIsNotSetException();
-
-            set
-            {
-                if (lastUpdateDate1 is null)
-                    lastUpdateDate1 = value;
-                else if (lastUpdateDate1 < value)
-                    lastUpdateDate1 = value;
-                else if (LastUpdatedAt > value)
-                    throw new NoteLastModifiedDateCannotGoBackInTimeException();
-            }
-        }
-
-        private System.Guid? noteId1 = null;
-        private string? title1 = null;
-        private string? body1 = null;
-        private System.DateTime? createdDate1 = null;
-        private System.DateTime? lastUpdateDate1 = null;
-
-        public const int MAX_TITLE_LENGTH = 250;
-        public const int MAX_BODY_LENGTH = 4000;
+        get => noteIdField ?? throw new NoteIdIsNotSetException();
+        set => noteIdField = value;
     }
-    #endregion "Entity class Note"
 
-
-    #region "Repository interface INoteRepository"
-    public interface INoteRepository
+    [property: StringLength(
+        maximumLength: MAX_TITLE_LENGTH,
+        MinimumLength = 1)]
+    public string Title
     {
-        System.Threading.Tasks.Task<Note> CreateAsync(Note note);
+        get => titleField ?? throw new NoteTitleIsNotSetException();
 
-        System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>>
-            GetAllAsync();
-
-        System.Threading.Tasks.Task<Note> GetAsync(System.Guid id);
-
-        System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>>
-            SearchAsync(string query);
-
-        System.Threading.Tasks.Task<Note> UpdateAsync(Note note);
-
-        System.Threading.Tasks.Task DeleteAsync(System.Guid id);
-    }
-    #endregion "Repository interface INoteRepository"
-
-
-    #region "Exception class NoteIdIsNotSetException"
-    public class NoteIdIsNotSetException : System.InvalidOperationException
-    {
-        public override string Message { get => "Note Id must be set first"; }
-    }
-    #endregion
-
-
-    #region "Exception class NoteTitleIsNotSetException"
-    public class NoteTitleIsNotSetException : System.InvalidOperationException
-    {
-        public override string Message { get => "Note Title must be set first"; }
-    }
-    #endregion
-
-
-    #region "Exception class NoteTitleIsEmptyException"
-    public class NoteTitleIsEmptyException : System.ArgumentException
-    {
-        public override string Message { get => "Note Title must not be empty"; }
-    }
-    #endregion
-
-
-    #region "Exception class NoteTitleIsTooLongException"
-    public class NoteTitleIsTooLongException : System.ArgumentException
-    {
-        public override string Message
+        set
         {
-            get => "Note Title must be " +
-                Note.MAX_TITLE_LENGTH + " characters or shorter";
+            if (string.IsNullOrWhiteSpace(value))
+                throw new NoteTitleIsEmptyException();
+            else if (value.Length > MAX_TITLE_LENGTH)
+                throw new NoteTitleIsTooLongException();
+            else
+                titleField = value;
         }
     }
-    #endregion
 
-
-    #region "Exception class NoteBodyIsNotSetException"
-    public class NoteBodyIsNotSetException : System.InvalidOperationException
+    [property: StringLength(
+        maximumLength: MAX_BODY_LENGTH,
+        MinimumLength = 1)]
+    public string Body
     {
-        public override string Message { get => "Note Body must be set first"; }
-    }
-    #endregion
+        get => bodyField ?? throw new NoteBodyIsNotSetException();
 
-
-    #region "Exception class NoteBodyIsEmptyException"
-    public class NoteBodyIsEmptyException : System.ArgumentException
-    {
-        public override string Message { get => "Note Body must not be empty"; }
-    }
-    #endregion
-
-
-    #region "Exception class NoteBodyIsTooLongException"
-    public class NoteBodyIsTooLongException : System.ArgumentException
-    {
-        public override string Message
+        set
         {
-            get => "Note Body must be " +
-                Note.MAX_BODY_LENGTH + " characters or shorter";
+            if (string.IsNullOrWhiteSpace(value))
+                throw new NoteBodyIsEmptyException();
+            else if (value.Length > MAX_BODY_LENGTH)
+                throw new NoteBodyIsTooLongException();
+            else
+                bodyField = value;
         }
     }
-    #endregion
 
-
-    #region "Exception class NoteLastModifiedDateIsNotSetException"
-    public class NoteLastModifiedDateIsNotSetException : System.InvalidOperationException
+    public DateTime CreatedAt
     {
-        public override string Message { get => "Note LastUpdatedAt must be set first"; }
-    }
-    #endregion
+        get => createdAtField ??
+            throw new NoteCreatedAtIsNotSetException();
 
-    #region "Exception class NoteLastModifiedDateCannotGoBackInTimeException : System.InvalidOperationException"
-    public class NoteLastModifiedDateCannotGoBackInTimeException : System.InvalidOperationException
+        set
+        {
+            if (createdAtField is null)
+                createdAtField = value;
+            else if (createdAtField == value)
+                return;
+            else
+                throw new NoteCreatedAtWouldBeChangedException();
+        }
+    }
+
+    public DateTime LastModifiedAt
     {
-        public override string Message { get => "Note LastUpdatedAt cannot be set to an earlier time.  This is a data-integrity issue"; }
+        get => lastModifiedAtField ??
+            throw new NoteLastModifiedAtIsNotSetException();
+
+        set
+        {
+            if (lastModifiedAtField is null)
+                lastModifiedAtField = value;
+            else if (lastModifiedAtField < value)
+                lastModifiedAtField = value;
+            else if (LastModifiedAt > value)
+                throw new NoteLastModifiedDateWouldGoBackInTimeException();
+        }
     }
-    #endregion
+
+    private Guid? noteIdField = null;
+    private string? titleField = null;
+    private string? bodyField = null;
+    private DateTime? createdAtField = null;
+    private DateTime? lastModifiedAtField = null;
+
+    public const int MAX_TITLE_LENGTH = 250;
+    public const int MAX_BODY_LENGTH = 4000;
+}
 
 
-    #region "Exception class NoteCreationDateIsNotSetException"
-    public class NoteCreationDateIsNotSetException : System.InvalidOperationException
+public interface INoteRepository
+{
+    TaskReturningNote CreateNoteAsync(Note note);
+
+    TaskReturningNotes GetAllNotesAsync();
+
+    TaskReturningNote GetNoteByIdAsync(Guid noteID);
+
+    TaskReturningNotes SearchNotesAsync(string query);
+
+    TaskReturningNote UpdateNoteAsync(Note note);
+
+    Task DeleteNoteAsync(Guid noteID);
+}
+
+
+public sealed class NoteIdIsNotSetException
+    : InvalidOperationException
+{
+    public override string Message { get => "NoteID must be set first"; }
+}
+
+
+public sealed class NoteTitleIsNotSetException
+    : InvalidOperationException
+{
+    public override string Message { get => "Note Title must be set first"; }
+}
+
+
+public sealed class NoteTitleIsEmptyException
+    : ArgumentException
+{
+    public override string Message { get => "Note Title must not be empty"; }
+}
+
+
+public sealed class NoteTitleIsTooLongException
+    : ArgumentException
+{
+    public override string Message
     {
-        public override string Message { get => "Note CreatedAt must be set first"; }
+        get => "Note Title must be " +
+            Note.MAX_TITLE_LENGTH + " characters or shorter";
     }
-    #endregion
+}
 
-    #region "Exception class NoteCreationDateIsNotModifiableException"
-    public class NoteCreationDateIsNotModifiableException : System.InvalidOperationException
+
+public sealed class NoteBodyIsNotSetException
+    : InvalidOperationException
+{
+    public override string Message { get => "Note Body must be set first"; }
+}
+
+
+public sealed class NoteBodyIsEmptyException
+    : ArgumentException
+{
+    public override string Message { get => "Note Body must not be empty"; }
+}
+
+
+public sealed class NoteBodyIsTooLongException
+    : ArgumentException
+{
+    public override string Message
     {
-        public override string Message { get => "Note CreatedAt cannot be changed. This is a data-integrity issue"; }
+        get => "Note Body must be " +
+            Note.MAX_BODY_LENGTH + " characters or shorter";
     }
-    #endregion
+}
+
+
+public sealed class NoteCreatedAtIsNotSetException
+    : InvalidOperationException
+{
+    public override string Message
+    {
+        get => "Note CreatedAt must be set first";
+    }
+}
+
+
+public sealed class NoteCreatedAtWouldBeChangedException
+    : InvalidOperationException
+{
+    public override string Message
+    {
+        get => "Note CreatedAt cannot be changed. " +
+            "This is a data-integrity issue";
+    }
+}
+
+
+public class NoteLastModifiedAtIsNotSetException
+    : InvalidOperationException
+{
+    public override string Message
+    {
+        get => "Note LastModifiedAt must be set first";
+    }
+}
+
+
+public class NoteLastModifiedDateWouldGoBackInTimeException
+    : InvalidOperationException
+{
+    public override string Message
+    {
+        get => "Note LastModifiedAt cannot be set to an earlier time. " +
+            "This is a data-integrity issue";
+    }
 }
 #endregion "NotesDomain/NoteEntity.cs"
