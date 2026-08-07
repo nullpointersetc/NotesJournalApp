@@ -9,6 +9,14 @@ using Key = System.ComponentModel.DataAnnotations.KeyAttribute;
 using StringLength = System.ComponentModel.DataAnnotations.StringLengthAttribute;
 using EmailAddress = System.ComponentModel.DataAnnotations.EmailAddressAttribute;
 using InvalidOperationException = System.InvalidOperationException;
+using Task = System.Threading.Tasks.Task;
+
+using TaskReturningUser = System.Threading.Tasks.Task<
+    NullPointersEtc.NotesJournalApp.UserEntity.User>;
+
+using TaskReturningUsers = System.Threading.Tasks.Task<
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.UserEntity.User>>;
 
 namespace NullPointersEtc.NotesJournalApp.UserEntity;
 
@@ -126,26 +134,19 @@ public sealed class User
 
 public interface IUserRepository
 {
-    System.Threading.Tasks.Task<User>
-        CreateAsync(User user);
+    TaskReturningUser CreateUserAsync(User user);
 
-    System.Threading.Tasks.Task<User>
-        GetByIdAsync(Guid userID);
+    TaskReturningUser GetUserByUserIdAsync(Guid userID);
 
-    System.Threading.Tasks.Task<User>
-        GetByIdentifierAsync(string identifier);
+    TaskReturningUser GetUserByUserNameAsync(string userName);
 
-    System.Threading.Tasks.Task<User>
-        GetByDisplayAsync(string display);
+    TaskReturningUser GetUserByDisplayNameAsync(string displayName);
 
-    System.Threading.Tasks.Task<
-        System.Collections.Generic.IEnumerable<User>>
-        GetAllUsersAsync();
+    TaskReturningUsers GetAllUsersAsync();
 
-    System.Threading.Tasks.Task<User>
-        UpdateAsync(User user);
+    TaskReturningUser UpdateUserAsync(User user);
 
-    System.Threading.Tasks.Task DeleteAsync(Guid userID);
+    Task DeleteUserAsync(Guid userID);
 }
 
 
