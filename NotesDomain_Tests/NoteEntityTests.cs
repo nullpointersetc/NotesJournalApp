@@ -1,9 +1,11 @@
-﻿﻿#region "NoteEntityTests.cs"
+﻿﻿#region "NotesDomain/NoteEntityTests.cs"
 #pragma warning disable IDE0001, IDE0057, IDE0130
 
 namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
 {
     using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
+    using Assert = Xunit.Assert;
+    using Fact = Xunit.FactAttribute;
 
     using NoteIdIsNotSetException =
         NullPointersEtc.NotesJournalApp.NoteEntity.NoteIdIsNotSetException;
@@ -26,33 +28,30 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
     using NoteBodyIsTooLongException =
         NullPointersEtc.NotesJournalApp.NoteEntity.NoteBodyIsTooLongException;
 
-    using NoteLastModifiedDateIsNotSetException =
-        NullPointersEtc.NotesJournalApp.NoteEntity.NoteLastModifiedDateIsNotSetException;
+    using NoteCreatedAtIsNotSetException =
+        NullPointersEtc.NotesJournalApp.NoteEntity.NoteCreatedAtIsNotSetException;
 
-    using NoteLastModifiedDateCannotGoBackInTimeException =
-        NullPointersEtc.NotesJournalApp.NoteEntity.NoteLastModifiedDateCannotGoBackInTimeException;
+    using NoteCreatedAtWouldBeChangedException =
+        NullPointersEtc.NotesJournalApp.NoteEntity.NoteCreatedAtWouldBeChangedException;
 
-    using NoteCreationDateIsNotSetException =
-        NullPointersEtc.NotesJournalApp.NoteEntity.NoteCreationDateIsNotSetException;
+    using NoteLastModifiedAtIsNotSetException =
+        NullPointersEtc.NotesJournalApp.NoteEntity.NoteLastModifiedAtIsNotSetException;
 
-    using NoteCreationDateIsNotModifiableException =
-        NullPointersEtc.NotesJournalApp.NoteEntity.NoteCreationDateIsNotModifiableException;
-
-    using Assert_t = Xunit.Assert;
-    using Fact_a = Xunit.FactAttribute;
+    using NoteLastModifiedDateWouldGoBackInTimeException =
+        NullPointersEtc.NotesJournalApp.NoteEntity.NoteLastModifiedDateWouldGoBackInTimeException;
 
     public class NoteEntityTests
     {
-        [Fact_a]
+        [method: @Fact]
         public void CannotGetNoteIdBeforeSet()
         {
             Note note = new();
 
-            Assert_t.Throws<NoteIdIsNotSetException>(
+            Assert.Throws<NoteIdIsNotSetException>(
                 () => { return note.NoteID; });
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CanGetNoteIdAfterSet()
         {
             Note note = new();
@@ -63,57 +62,57 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 h: 0xd9, i: 0x3e, j: 0x94, k: 0xef);
 
             note.NoteID = guid;
-            Assert_t.Equal<System.Guid>(guid, note.NoteID);
+            Assert.Equal<System.Guid>(guid, note.NoteID);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CannotGetTitleBeforeSet()
         {
             Note note = new();
 
-            Assert_t.Throws<NoteTitleIsNotSetException>(
+            Assert.Throws<NoteTitleIsNotSetException>(
                 () => note.Title);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CanGetTitleAfterSet()
         {
             Note note = new();
 
             note.Title = TheHoundOfTheBaskervilles.TheLegend.PostScript;
 
-            Assert_t.Equal(expected: TheHoundOfTheBaskervilles.TheLegend.PostScript,
+            Assert.Equal(expected: TheHoundOfTheBaskervilles.TheLegend.PostScript,
                 actual: note.Title);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingNullTitleThrowsException()
         {
             Note note = new();
 
-            Assert_t.Throws<NoteTitleIsEmptyException>(
+            Assert.Throws<NoteTitleIsEmptyException>(
                 () => note.Title = null!);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingEmptyTitleThrowsException()
         {
             Note note = new();
 
-            Assert_t.Throws<NoteTitleIsEmptyException>(
+            Assert.Throws<NoteTitleIsEmptyException>(
                 () => note.Title = string.Empty);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingTitleToSpacesThrowsException()
         {
             Note note = new();
 
-            Assert_t.Throws<NoteTitleIsEmptyException>(
+            Assert.Throws<NoteTitleIsEmptyException>(
                 () => note.Title = "\u0020\u0020");
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingTooLongTitleThrowsException()
         {
             Note note = new();
@@ -124,24 +123,24 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                         startIndex: 0, length: Note.MAX_TITLE_LENGTH + 1));
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CannotGetBodyBeforeSet()
         {
             Note note = new();
             Assert.Throws<NoteBodyIsNotSetException>(() => note.Body);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CanGetBodyAfterSet()
         {
             Note note = new();
             note.Body = TheHoundOfTheBaskervilles.TheLegend.Second;
 
-            Assert_t.Equal(expected: TheHoundOfTheBaskervilles.TheLegend.Second,
+            Assert.Equal(expected: TheHoundOfTheBaskervilles.TheLegend.Second,
                 actual: note.Body);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingNullBodyThrowsException()
         {
             Note note = new();
@@ -150,7 +149,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 () => note.Body = null!);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingEmptyBodyThrowsException()
         {
             Note note = new();
@@ -158,7 +157,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 () => note.Body = string.Empty);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingBodyToSpacesThrowsException()
         {
             Note note = new();
@@ -167,7 +166,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 () => note.Body = "\u0020\u0020");
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void SettingTooLongBodyThrowsException()
         {
             Note note = new();
@@ -177,25 +176,25 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 TheHoundOfTheBaskervilles.TheLegend.Fourth +
                 TheHoundOfTheBaskervilles.TheLegend.Fifth;
 
-            Assert_t.True(longBody.Length > Note.MAX_BODY_LENGTH);
+            Assert.True(longBody.Length > Note.MAX_BODY_LENGTH);
 
-            Assert_t.Throws<NoteBodyIsTooLongException>(
+            Assert.Throws<NoteBodyIsTooLongException>(
                 () => note.Body = longBody);
 
-            Assert_t.Throws<NoteBodyIsTooLongException>(
+            Assert.Throws<NoteBodyIsTooLongException>(
                 () => note.Body = longBody.Substring(
                     startIndex: 0, length: Note.MAX_BODY_LENGTH + 1));
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CannotGetCreatedAtBeforeSet()
         {
             Note note = new();
 
-            Assert.Throws<NoteCreationDateIsNotSetException>(() => note.CreatedAt);
+            Assert.Throws<NoteCreatedAtIsNotSetException>(() => note.CreatedAt);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CanGetCreatedAtAfterSet()
         {
             System.DateTime testDate = new(
@@ -204,16 +203,18 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.CreatedAt = testDate;
+            {
+                note.CreatedAt = testDate;
 
-            Assert_t.Equal(expected: testDate,
-                actual: note.CreatedAt);
+                Assert.Equal(expected: testDate,
+                    actual: note.CreatedAt);
+            }
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CanSetCreatedAtToSameDateTime()
         {
-            System.DateTime testDate = new(
+            System.DateTime testDate1 = new(
                 year: 2026, month: 7, day: 1,
                 hour: 13, minute: 34, second: 56,
                 millisecond: 789);
@@ -224,21 +225,23 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.CreatedAt = testDate;
+            {
+                note.CreatedAt = testDate1;
+            }
 
-            Assert_t.Equal(expected: testDate,
+            Assert.Equal(expected: testDate1,
                 actual: note.CreatedAt);
 
             note.CreatedAt = testDate2;
 
-            Assert_t.Equal(expected: testDate2,
+            Assert.Equal(expected: testDate2,
                 actual: note.CreatedAt);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CannotSetCreatedAtToDifferentDateTime()
         {
-            System.DateTime testDate = new(
+            System.DateTime testDate1 = new(
                 year: 2026, month: 7, day: 1,
                 hour: 13, minute: 34, second: 56,
                 millisecond: 789);
@@ -249,28 +252,31 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.CreatedAt = testDate;
+            {
+                note.CreatedAt = testDate1;
+            }
 
-            Assert_t.Equal(expected: testDate,
+            Assert.Equal(expected: testDate1,
                 actual: note.CreatedAt);
 
-            Assert_t.Throws<NoteCreationDateIsNotModifiableException>(
+            Assert.Throws<NoteCreatedAtWouldBeChangedException>(
                 () => note.CreatedAt = testDate2);
 
-            Assert_t.Equal(expected: testDate, actual: note.CreatedAt);
+            Assert.Equal(expected: testDate1,
+                actual: note.CreatedAt);
         }
 
-        [Fact_a]
-        public void CannotGetUpdatedAtBeforeSet()
+        [method: @Fact]
+        public void CannotGetLastModifiedAtBeforeSet()
         {
             Note note = new();
 
-            Assert.Throws<NoteLastModifiedDateIsNotSetException>(
-                () => note.LastUpdatedAt);
+            Assert.Throws<NoteLastModifiedAtIsNotSetException>(
+                () => note.LastModifiedAt);
         }
 
-        [Fact_a]
-        public void CanGetUpdatedAtAfterSet()
+        [method: @Fact]
+        public void CanGetLastModifiedAtAfterSet()
         {
             System.DateTime testDate = new(
                 year: 2026, month: 7, day: 1,
@@ -278,16 +284,18 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.LastUpdatedAt = testDate;
+            {
+                note.LastModifiedAt = testDate;
 
-            Assert.Equal(expected: testDate,
-                actual: note.LastUpdatedAt);
+                Assert.Equal(expected: testDate,
+                    actual: note.LastModifiedAt);
+            }
         }
 
-        [Fact_a]
-        public void CanSetUpdatedAtToSameDateTime()
+        [method: @Fact]
+        public void CanSetLastModifiedAtToSameDateTime()
         {
-            System.DateTime testDate = new(
+            System.DateTime testDate1 = new(
                 year: 2026, month: 7, day: 1,
                 hour: 13, minute: 34, second: 56,
                 millisecond: 789);
@@ -298,21 +306,23 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.LastUpdatedAt = testDate;
+            {
+                note.LastModifiedAt = testDate1;
+            }
 
-            Assert.Equal(expected: testDate,
-                actual: note.LastUpdatedAt);
+            Assert.Equal(expected: testDate1,
+                actual: note.LastModifiedAt);
 
-            note.LastUpdatedAt = testDate2;
+            note.LastModifiedAt = testDate2;
 
             Assert.Equal(expected: testDate2,
-                actual: note.LastUpdatedAt);
+                actual: note.LastModifiedAt);
         }
 
-        [Fact_a]
-        public void CanSetUpdatedAtToLaterDateTime()
+        [method: @Fact]
+        public void CanSetLastModifiedAtToLaterDateTime()
         {
-            System.DateTime testDate = new(
+            System.DateTime testDate1 = new(
                 year: 2026, month: 7, day: 1,
                 hour: 13, minute: 34, second: 56,
                 millisecond: 789);
@@ -323,21 +333,23 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.LastUpdatedAt = testDate;
+            {
+                note.LastModifiedAt = testDate1;
+            }
 
-            Assert.Equal(expected: testDate,
-                actual: note.LastUpdatedAt);
+            Assert.Equal(expected: testDate1,
+                actual: note.LastModifiedAt);
 
-            note.LastUpdatedAt = testDate2;
+            note.LastModifiedAt = testDate2;
 
             Assert.Equal(expected: testDate2,
-                actual: note.LastUpdatedAt);
+                actual: note.LastModifiedAt);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void CannotSetUpdatedAtToEarlierDateTime()
         {
-            System.DateTime testDate = new(
+            System.DateTime testDate1 = new(
                 year: 2026, month: 7, day: 1,
                 hour: 13, minute: 34, second: 56,
                 millisecond: 789);
@@ -348,69 +360,73 @@ namespace NullPointersEtc.NotesJournalApp.NotesDomain_Tests
                 millisecond: 789);
 
             Note note = new();
-            note.LastUpdatedAt = testDate;
-            Assert.Equal(expected: testDate, actual: note.LastUpdatedAt);
+            {
+                note.LastModifiedAt = testDate1;
+            }
 
-            Assert.Throws<NoteLastModifiedDateCannotGoBackInTimeException>(
-                () => note.LastUpdatedAt = testDate2);
+            Assert.Equal(expected: testDate1,
+                actual: note.LastModifiedAt);
 
-            Assert.Equal(expected: testDate,
-                actual: note.LastUpdatedAt);
+            Assert.Throws<NoteLastModifiedDateWouldGoBackInTimeException>(
+                () => note.LastModifiedAt = testDate2);
+
+            Assert.Equal(expected: testDate1,
+                actual: note.LastModifiedAt);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifyFirstParagraphLength()
         {
-            Assert_t.Equal(expected: 695,
+            Assert.Equal(expected: 695,
                 actual: TheHoundOfTheBaskervilles.TheLegend.First.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifySecondParagraphLength()
         {
-            Assert_t.Equal(expected: 1739,
+            Assert.Equal(expected: 1739,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Second.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifyThirdParagraphLength()
         {
-            Assert_t.Equal(expected: 934,
+            Assert.Equal(expected: 934,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Third.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifyFourthParagraphLength()
         {
-            Assert_t.Equal(expected: 628,
+            Assert.Equal(expected: 628,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Fourth.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifyFifthParagraphLength()
         {
-            Assert_t.Equal(expected: 1278,
+            Assert.Equal(expected: 1278,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Fifth.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifySixthParagraphLength()
         {
-            Assert_t.Equal(expected: 1270,
+            Assert.Equal(expected: 1270,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Sixth.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifySeventhParagraphLength()
         {
-            Assert_t.Equal(expected: 737,
+            Assert.Equal(expected: 737,
                 actual: TheHoundOfTheBaskervilles.TheLegend.Seventh.Length);
         }
 
-        [Fact_a]
+        [method: @Fact]
         public void VerifyPostScriptLength()
         {
-            Assert_t.Equal(expected: 134,
+            Assert.Equal(expected: 134,
                 actual: TheHoundOfTheBaskervilles.TheLegend.PostScript.Length);
         }
     }
@@ -611,4 +627,4 @@ namespace NullPointersEtc.NotesJournalApp.TheHoundOfTheBaskervilles
         }
     }
 }
-#endregion "NoteEntityTests.cs"
+#endregion "NotesDomain/NoteEntityTests.cs"
