@@ -3,7 +3,6 @@
 #nullable enable
 
 using Guid = System.Guid;
-using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Task = System.Threading.Tasks.Task;
 
 using TaskReturningNote = System.Threading.Tasks.Task<
@@ -13,26 +12,25 @@ using TaskReturningNotes = System.Threading.Tasks.Task<
     System.Collections.Generic.IEnumerable<
         NullPointersEtc.NotesJournalApp.NoteEntity.Note>>;
 
-namespace NullPointersEtc.NotesJournalApp.NotesHandlers
+namespace NullPointersEtc.NotesJournalApp.NotesHandlers;
+
+public interface INoteHandler
 {
-    public interface INoteHandler
-    {
-        TaskReturningNote CreateNoteWithHandlerAsync(
-            string title, string body);
+    TaskReturningNote CreateNoteWithHandlerAsync(
+        string title, string body);
 
-        TaskReturningNotes GetAllNotesWithHandlerAsync();
+    TaskReturningNotes GetAllNotesWithHandlerAsync();
 
-        TaskReturningNote GetNoteFromNoteIdWithHandlerAsync(
-            Guid noteID);
+    TaskReturningNote GetNoteFromNoteIdWithHandlerAsync(
+        Guid noteID);
 
-        TaskReturningNotes SearchNotesWithHandlerAsync(
-            string query);
+    TaskReturningNotes SearchNotesWithHandlerAsync(
+        string query);
 
-        TaskReturningNote UpdateNoteWithHandlerAsync(
-            Guid noteID,
-            string title, string body);
+    TaskReturningNote UpdateNoteWithHandlerAsync(
+        Guid noteID,
+        string title, string body);
 
-        Task DeleteNoteWithHandlerAsync(Guid noteID);
-    }
+    Task DeleteNoteWithHandlerAsync(Guid noteID);
 }
 #endregion "NotesHandlers/INoteHandler.cs"
