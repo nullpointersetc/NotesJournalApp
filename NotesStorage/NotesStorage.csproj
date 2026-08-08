@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NotesDomain\NotesDomain.csproj" />
-    <ProjectReference Include="..\NotesHandlers\NotesHandlers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,7 +16,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
