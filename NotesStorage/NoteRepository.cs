@@ -2,78 +2,83 @@
 #pragma warning disable IDE0001, IDE0130, IDE0240, IDE0290
 #nullable enable
 
-/* To include this "using", you must execute:
-**
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore.Sqlite
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore.SqlServer
-*/
-
-using Microsoft.EntityFrameworkCore;
-
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
+using Guid = System.Guid;
+using Queryable = System.Linq.Queryable;
+using Task = System.Threading.Tasks.Task;
+
+using TaskReturningNote = System.Threading.Tasks.Task<
+    NullPointersEtc.NotesJournalApp.NoteEntity.Note>;
+
+using TaskReturningNotes = System.Threading.Tasks.Task<
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.NoteEntity.Note>>;
+
+using EntityFrameworkQueryableExtensions =
+    Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
 using INoteRepository =
     NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository;
 
-namespace NullPointersEtc.NotesJournalApp.NotesStorage
+namespace NullPointersEtc.NotesJournalApp.NotesStorage;
+
+public sealed class NoteRepository : INoteRepository
 {
-    public class NoteRepository : INoteRepository
+    public NoteRepository(NotesDbContextForSqlite db)
     {
-        public NoteRepository(NotesDbContextForSqlite db)
-        {
-            db1 = db;
-        }
-
-        public NoteRepository(NotesDbContextForSqlServer db)
-        {
-            db1=db;
-        }
-
-        async System.Threading.Tasks.Task<Note>
-            INoteRepository.CreateAsync(Note note)
-        {
-            db1.Notes.Add(note);
-            await db1.SaveChangesAsync();
-            return note;
-        }
-
-        async System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>>
-            INoteRepository.GetAllAsync()
-            => await db1.Notes.ToListAsync();
-
-        System.Threading.Tasks.Task<Note>
-            INoteRepository.GetAsync(Guid noteID)
-            => db1.Notes.FirstAsync(note => note.NoteID == noteID);
-
-        async System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>> INoteRepository.SearchAsync(
-                string query)
-            => await db1.Notes.Where(
-                note => note.Title.Contains(query)
-                    || note.Body.Contains(query)).ToListAsync();
-
-        async System.Threading.Tasks.Task<Note>
-            INoteRepository.UpdateAsync(Note note)
-        {
-            db1.Notes.Update(note);
-            await db1.SaveChangesAsync();
-            return note;
-        }
-
-        async System.Threading.Tasks.Task
-            INoteRepository.DeleteAsync(Guid noteID)
-        {
-            Note note1 = await db1.Notes.FirstAsync(
-                note => note.NoteID == noteID);
-
-            db1.Notes.Remove(note1);
-            await db1.SaveChangesAsync();
-        }
-        
-        private readonly NotesDbContext db1;
+        myDB = db;
     }
+
+
+    public NoteRepository(NotesDbContextForSqlServer db)
+    {
+        myDB = db;
+    }
+
+
+    public async TaskReturningNote CreateNoteAsync(Note note)
+    {
+        myDB.Notes.Add(note);
+        await myDB.SaveChangesAsync();
+        return note;
+    }
+
+
+    public async TaskReturningNotes GetAllNotesAsync()
+        => await EntityFrameworkQueryableExtensions.ToListAsync(myDB.Notes);
+
+
+    public TaskReturningNote GetNoteByIdAsync(Guid noteID)
+        => EntityFrameworkQueryableExtensions.FirstAsync(
+            myDB.Notes, predicate: note => note.NoteID == noteID);
+
+
+    public async TaskReturningNotes SearchNotesAsync(
+            string query)
+        => await EntityFrameworkQueryableExtensions.ToListAsync(
+            Queryable.Where(myDB.Notes,
+                predicate: note => note.Title.Contains(query)
+                    || note.Body.Contains(query)));
+
+
+    public async TaskReturningNote UpdateNoteAsync(Note note)
+    {
+        myDB.Notes.Update(note);
+        await myDB.SaveChangesAsync();
+        return note;
+    }
+
+
+    public async Task DeleteNoteAsync(Guid noteID)
+    {
+        Note note1 = await EntityFrameworkQueryableExtensions.FirstAsync(
+            myDB.Notes, predicate: note => note.NoteID == noteID);
+
+        myDB.Notes.Remove(note1);
+        await myDB.SaveChangesAsync();
+    }
+
+    private readonly NotesDbContext myDB;
 }
 
 #endregion "NoteRepository.cs"
