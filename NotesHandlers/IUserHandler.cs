@@ -2,43 +2,45 @@
 #pragma warning disable IDE0001, IDE0130, IDE0240, IDE0290
 #nullable enable
 
-namespace NullPointersEtc.NotesJournalApp.NotesHandlers
+using Guid = System.Guid;
+using EmailAddress = System.ComponentModel.DataAnnotations.EmailAddressAttribute;
+using Task = System.Threading.Tasks.Task;
+
+using TaskReturningUser = System.Threading.Tasks.Task<
+    NullPointersEtc.NotesJournalApp.UserEntity.User>;
+
+using TaskReturningUsers = System.Threading.Tasks.Task<
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.UserEntity.User>>;
+
+namespace NullPointersEtc.NotesJournalApp.NotesHandlers;
+
+public interface IUserHandler
 {
-    using Guid = System.Guid;
-    using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
-    using EmailAddress = System.ComponentModel.DataAnnotations.EmailAddressAttribute;
+    TaskReturningUser CreateUserWithHandlerAsync(
+        string userName,
+        string displayName,
+        [EmailAddress]
+        string eMail);
 
-    #region "Handler interface INoteHandler"
-    public interface IUserHandler
-    {
-        System.Threading.Tasks.Task<User>
-            CreateAsync(string identifier,
-                string display,
-                [EmailAddress]
-                string eMail);
+    TaskReturningUser GetUserFromUserIdWithHandlerAsync(
+        Guid userID);
 
-        System.Threading.Tasks.Task<User>
-            GetByGuidAsync(Guid userID);
+    TaskReturningUser GetUserFromUserNameWithHandlerAsync(
+        string userName);
 
-        System.Threading.Tasks.Task<User>
-            GetByIdentifierAsync(string identifier);
+    TaskReturningUser GetUserFromDisplayNameWithHandlerAsync(
+        string displayName);
 
-        System.Threading.Tasks.Task<User>
-            GetByDisplayAsync(string display);
+    TaskReturningUsers GetAllUsersWithHandlerAsync();
 
-        System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<User>>
-            GetAllAsync();
+    TaskReturningUser UpdateUserWithHandlerAsync(
+        Guid userID,
+        string displayName,
+        [EmailAddress]
+        string eMailAddress);
 
-        System.Threading.Tasks.Task<User>
-            UpdateAsync(Guid userID,
-                string display,
-                [EmailAddress]
-                string eMail);
-
-        System.Threading.Tasks.Task
-            DeleteAsync(Guid userID);
-    }
-    #endregion "Handler interface INoteHandler"
+    Task DeleteWithHandlerAsync(
+        Guid userID);
 }
 #endregion "NotesHandler/IUserHandler.cs"
