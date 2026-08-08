@@ -4,33 +4,35 @@
 
 using Guid = System.Guid;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
+using Task = System.Threading.Tasks.Task;
+
+using TaskReturningNote = System.Threading.Tasks.Task<
+    NullPointersEtc.NotesJournalApp.NoteEntity.Note>;
+
+using TaskReturningNotes = System.Threading.Tasks.Task<
+    System.Collections.Generic.IEnumerable<
+        NullPointersEtc.NotesJournalApp.NoteEntity.Note>>;
 
 namespace NullPointersEtc.NotesJournalApp.NotesHandlers
 {
-    #region "Handler interface INoteHandler"
     public interface INoteHandler
     {
-        System.Threading.Tasks.Task<Note>
-            CreateAsync(string title, string body);
+        TaskReturningNote CreateNoteWithHandlerAsync(
+            string title, string body);
 
-        System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>>
-            GetAllNotesAsync();
+        TaskReturningNotes GetAllNotesWithHandlerAsync();
 
-        System.Threading.Tasks.Task<Note>
-            GetNotesAsync(Guid noteID);
+        TaskReturningNote GetNoteFromNoteIdWithHandlerAsync(
+            Guid noteID);
 
-        System.Threading.Tasks.Task<
-            System.Collections.Generic.IEnumerable<Note>>
-            SearchAsync(string query);
+        TaskReturningNotes SearchNotesWithHandlerAsync(
+            string query);
 
-        System.Threading.Tasks.Task<Note>
-            UpdateAsync(Guid noteID,
-                string title, string body);
+        TaskReturningNote UpdateNoteWithHandlerAsync(
+            Guid noteID,
+            string title, string body);
 
-        System.Threading.Tasks.Task
-            DeleteAsync(Guid noteID);
+        Task DeleteNoteWithHandlerAsync(Guid noteID);
     }
-    #endregion "Handler interface INoteHandler"
 }
 #endregion "NotesHandlers/INoteHandler.cs"
