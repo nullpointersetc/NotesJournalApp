@@ -56,15 +56,15 @@ public abstract class NotesDbContext : DbContext
                 .IsRequired()
                 .UseCollation(CaseInsensitiveCollation);
 
-            entity.Property(user => user.Display)
+            entity.Property(user => user.DisplayName)
                 .IsRequired()
                 .UseCollation(CaseInsensitiveCollation);
 
-            entity.Property(user => user.EMail)
+            entity.Property(user => user.EMailAddress)
                 .IsRequired();
             
             entity.HasIndex(user => user.UserName).IsUnique();
-            entity.HasIndex(user => user.Display).IsUnique();
+            entity.HasIndex(user => user.DisplayName).IsUnique();
         }).Entity<User>().ToTable("USERS");
     }
 
