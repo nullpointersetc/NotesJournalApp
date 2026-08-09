@@ -2,9 +2,11 @@
 /NotesBackEnd/obj
 /NotesDomain/bin
 /NotesDomain/obj
-/NotesHandlers/bin
-/NotesHandlers/obj
-/NotesStorage/bin
-/NotesStorage/obj
 /NotesDomain_Tests/bin
 /NotesDomain_Tests/obj
+/NotesHandlers/bin
+/NotesHandlers/obj
+/NotesHandlers_Tests/bin
+/NotesHandlers_Tests/obj
+/NotesStorage/bin
+/NotesStorage/obj

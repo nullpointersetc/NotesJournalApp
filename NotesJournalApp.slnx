@@ -3,5 +3,6 @@
   <Project Path="NotesDomain/NotesDomain.csproj" />
   <Project Path="NotesDomain_Tests/NotesDomain_Tests.csproj" />
   <Project Path="NotesHandlers/NotesHandlers.csproj" />
+  <Project Path="NotesHandlers_Tests/NotesHandlers_Tests.csproj" />
   <Project Path="NotesStorage/NotesStorage.csproj" />
 </Solution>

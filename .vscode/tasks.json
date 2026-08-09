@@ -36,6 +36,22 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build NotesHandlers_Tests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "NotesHandlers_Tests",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Run NotesBackEnd",
             "command": "dotnet",
             "type": "shell",
@@ -58,6 +74,22 @@
             "args": [
                 "test",
                 "NotesDomain_Tests",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesHandlers_Tests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "test",
+                "NotesHandlers_Tests",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
