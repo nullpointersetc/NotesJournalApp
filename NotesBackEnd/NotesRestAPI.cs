@@ -1,123 +1,148 @@
-#region NotesRestAPI classes
-#pragma warning disable IDE0001, IDE0290
+#region "NotesBackEnd/NotesRestAPI.cs"
+#pragma warning disable IDE0001, IDE0130, IDE0240, IDE0290
 #nullable enable
 
-using Microsoft.AspNetCore.Mvc;
-using NullPointersEtc.NotesJournalApp.NotesHandlers;
-
+using ApiController = Microsoft.AspNetCore.Mvc.ApiControllerAttribute;
+using ControllerBase = Microsoft.AspNetCore.Mvc.ControllerBase;
+using DateTime = System.DateTime;
+using Enumerable = System.Linq.Enumerable;
+using FromQuery = Microsoft.AspNetCore.Mvc.FromQueryAttribute;
+using Guid = System.Guid;
+using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
+using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
+using HttpPut = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
+using INoteHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.INoteHandler;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
+using Route = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
-namespace NullPointersEtc.NotesJournalApp.NotesRestApiTypes;
+using Notes = System.Collections.Generic.IEnumerable<
+    NullPointersEtc.NotesJournalApp.NoteEntity.Note>;
+
+using TaskReturningIActionResult =
+    System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>;
+
+namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
 [type: ApiController, Route("api/notes")]
-public class NotesRestAPI : ControllerBase
+public sealed class NotesRestAPI : ControllerBase
 {
     public NotesRestAPI(INoteHandler handler)
     {
-        handler1 = handler;
+        myHandler = handler;
     }
 
+
     [method: HttpPost]
-    public async Task<IActionResult> Create(
+    public async TaskReturningIActionResult HttpPostCreateNoteAsync(
         CreateNoteDTO note)
     {
-        Note note2 = await handler1.CreateAsync(
+        Note note2 = await myHandler.CreateNoteWithHandlerAsync(
             title: note.Title, body: note.Body);
 
         return Ok(new NoteDTO(note2));
     }
 
-    [method: HttpGet("{id:guid}")]
-    public async Task<IActionResult> Get(Guid id)
+
+    [method: HttpGet("{noteID:guid}")]
+    public async TaskReturningIActionResult HttpGetNoteFromNoteIdAsync(
+        Guid noteID)
     {
-        Note note1 = await handler1.GetNotesAsync(id);
+        Note note1 = await myHandler.GetNoteFromNoteIdWithHandlerAsync(
+            noteID);
+
         return Ok(new NoteDTO(note1));
     }
 
+
     [method: HttpGet("search")]
-    public async Task<IActionResult> Search(
+    public async TaskReturningIActionResult HttpGetSearchNotesAsync(
         [FromQuery] string query)
     {
-        System.Collections.Generic.IEnumerable<Note>
-            results = await handler1.SearchAsync(query);
+        Notes results = await myHandler.SearchNotesWithHandlerAsync(query);
 
-        return Ok(results.Select(n => new NoteDTO(n)));
+        return Ok(Enumerable.Select<Note, NoteDTO>(
+            results, n => new NoteDTO(n)));
     }
 
-    [method: HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(
-        Guid id, UpdateNoteDTO note)
+
+    [method: HttpPut("{noteID:guid}")]
+    public async TaskReturningIActionResult HttpPutUpdateNoteAsync(
+        Guid noteID, UpdateNoteDTO note)
     {
-        Note note2 = await handler1.GetNotesAsync(id);
+        Note note2 = await myHandler.UpdateNoteWithHandlerAsync(
+            noteID: noteID,
+            title: note.Title, body: note.Body);
 
-        Note note3 = await handler1.UpdateAsync(
-            noteID: note2.NoteID, title: note.Title, body: note.Body);
-
-        return Ok(new NoteDTO(note3));
+        return Ok(new NoteDTO(note2));
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+
+    [HttpDelete("{noteID:guid}")]
+    public async TaskReturningIActionResult HttpDeleteNoteAsync(
+        Guid noteID)
     {
-        await handler1.DeleteAsync(id);
+        await myHandler.DeleteNoteWithHandlerAsync(noteID);
         return NoContent();
     }
 
-    private readonly INoteHandler handler1;
+
+    private readonly INoteHandler myHandler;
 }
 
 
-public class NoteDTO
+public sealed class NoteDTO
 {
     public NoteDTO(Note note)
     {
-        id1 = note.NoteID;
-        title1 = note.Title;
-        body1 = note.Body;
-        created1 = note.CreatedAt;
-        modified1 = note.LastUpdatedAt;
+        noteIdField = note.NoteID;
+        titleField = note.Title;
+        bodyField = note.Body;
+        createdAtField = note.CreatedAt;
+        lastModifiedAtField = note.LastModifiedAt;
     }
 
-    public Guid Id { get => id1; }
-    public string Title { get => title1; }
-    public string Body { get => body1; }
-    public DateTime CreatedAt { get => created1; }
-    public DateTime UpdatedAt { get => modified1; }
+    public Guid NoteID { get => noteIdField; }
+    public string Title { get => titleField; }
+    public string Body { get => bodyField; }
+    public DateTime CreatedAt { get => createdAtField; }
+    public DateTime UpdatedAt { get => lastModifiedAtField; }
 
-    private readonly Guid id1;
-    private readonly string title1;
-    private readonly string body1;
-    private readonly DateTime created1;
-    private readonly DateTime modified1;
+    private readonly Guid noteIdField;
+    private readonly string titleField;
+    private readonly string bodyField;
+    private readonly DateTime createdAtField;
+    private readonly DateTime lastModifiedAtField;
 }
 
 
-public class CreateNoteDTO
+public sealed class CreateNoteDTO
 {
     public CreateNoteDTO(string title, string body)
     {
-        title1 = title;
-        body1 = body;
+        titleField = title;
+        bodyField = body;
     }
-    public string Title { get => title1; }
-    public string Body { get => body1; }
-    private readonly string title1;
-    private readonly string body1;
+    public string Title { get => titleField; }
+    public string Body { get => bodyField; }
+    
+    private readonly string titleField;
+    private readonly string bodyField;
 }
 
 
-public class UpdateNoteDTO
+public sealed class UpdateNoteDTO
 {
     public UpdateNoteDTO(string title, string body)
     {
-        title1 = title;
-        body1 = body;
+        titleField = title;
+        bodyField = body;
     }
 
-    public string Title { get => title1; }
-    public string Body { get => body1; }
+    public string Title { get => titleField; }
+    public string Body { get => bodyField; }
 
-    private readonly string title1;
-    private readonly string body1;
+    private readonly string titleField;
+    private readonly string bodyField;
 }
-#endregion NotesRestAPI classes
+#endregion "NotesBackEnd/NotesRestAPI.cs"
