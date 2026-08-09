@@ -1,148 +1,184 @@
-#region UsersRestAPI classes
+#region "NotesBackEnd/UsersRestAPI.cs"
 #pragma warning disable IDE0001, IDE0044, IDE0130
-#pragma warning disable IDE0251, IDE0290
+#pragma warning disable IDE0240, IDE0251, IDE0290
 #nullable enable
-
-using Microsoft.AspNetCore.Mvc;
 
 using IUserHandler =
     NullPointersEtc.NotesJournalApp.NotesHandlers.IUserHandler;
 
+using DateTime = System.DateTime;
+using Guid = System.Guid;
 using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
 
-namespace NullPointersEtc.NotesJournalApp.UserRestAPI;
+using Users = System.Collections.Generic.IEnumerable<
+    NullPointersEtc.NotesJournalApp.UserEntity.User>;
+
+using ApiController = Microsoft.AspNetCore.Mvc.ApiControllerAttribute;
+using ControllerBase = Microsoft.AspNetCore.Mvc.ControllerBase;
+using Enumerable = System.Linq.Enumerable;
+using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
+using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
+using HttpPut = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
+using Route = Microsoft.AspNetCore.Mvc.RouteAttribute;
+
+using TaskReturningIActionResult = System.Threading.Tasks.Task<
+    Microsoft.AspNetCore.Mvc.IActionResult>;
+
+namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
 [type: ApiController, Route("api/users")]
-public class UsersREST_API : ControllerBase
+public sealed class UsersRestAPI : ControllerBase
 {
-    public UsersREST_API(IUserHandler handler)
+    public UsersRestAPI(IUserHandler handler)
     {
-        handler1 = handler;
+        myHandler = handler;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(
-        CreateUserDTO user2)
+
+    [method: HttpPost]
+    public async TaskReturningIActionResult HttpPostCreateUserAsync(
+        CreateUserDTO user)
     {
-        User user1 = await handler1.CreateAsync(
-            identifier: user2.Identifier,
-            display: user2.Display, eMail: user2.EMail);
+        User user2 = await myHandler.CreateUserWithHandlerAsync(
+            userName: user.UserName,
+            displayName: user.DisplayName,
+            eMail: user.EMailAddress);
+
+        return Ok(new UserDTO(user2));
+    }
+
+
+    [HttpGet("{userID:guid:required}")]
+    public async TaskReturningIActionResult HttpGetUserFromUserIdAsync(
+        Guid userID)
+    {
+        User user1 =
+            await myHandler.GetUserFromUserIdWithHandlerAsync(userID);
 
         return Ok(new UserDTO(user1));
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Get(Guid id)
+
+    [HttpGet("uname/{userName:required}")]
+    public async TaskReturningIActionResult HttpGetUserFromUserNameAsync(
+            string userName)
     {
-        User user1 = await handler1.GetByGuidAsync(id);
+        User user1 =
+            await myHandler.GetUserFromUserNameWithHandlerAsync(userName);
+
         return Ok(new UserDTO(user1));
     }
 
-    [HttpGet("ident/{identifier}")]
-    public async Task<IActionResult> GetByIdentifier(
-        string identifier)
+
+    [HttpGet("dname/{displayName:required}")]
+    public async TaskReturningIActionResult HttpGetUserFromDisplayAsyncName(
+        string displayName)
     {
-        User user1 = await handler1.GetByIdentifierAsync(identifier);
+        User user1 = await
+            myHandler.GetUserFromDisplayNameWithHandlerAsync(displayName);
+
         return Ok(new UserDTO(user1));
     }
 
-    [HttpGet("name/{display}")]
-    public async Task<IActionResult> GetByDisplay(string display)
-    {
-        User user1 = await handler1.GetByDisplayAsync(display);
-        return Ok(new UserDTO(user1));
-    }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async TaskReturningIActionResult HttpGetAllUsersAsync()
     {
-        System.Collections.Generic.IEnumerable<User>
-            users = await handler1.GetAllAsync();
-        return Ok(users.Select(user => new UserDTO(user)));
+        Users users = await myHandler.GetAllUsersWithHandlerAsync();
+
+        return Ok(Enumerable.Select(users,
+            selector: user => new UserDTO(user)));
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(
-        Guid id, UpdateUserDTO user)
+
+    [HttpPut("{userID:guid:required}")]
+    public async TaskReturningIActionResult HttpPutUpdatedUserAsync(
+        Guid userID, UpdateUserDTO user)
     {
-        User user1 = await handler1.UpdateAsync(
-            userID: id,
-            display: user.Display, eMail: user.EMail);
+        User user1 = await myHandler.UpdateUserWithHandlerAsync(
+            userID: userID,
+            displayName: user.DisplayName,
+            eMailAddress: user.EMail);
 
         return Ok(new UserDTO(user1));
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+
+    [HttpDelete("{userID:guid}")]
+    public async TaskReturningIActionResult HttpDeleteUserAsync(
+        Guid userID)
     {
-        await handler1.DeleteAsync(id);
+        await myHandler.DeleteWithHandlerAsync(userID);
         return NoContent();
     }
 
-    private readonly IUserHandler handler1;
+
+    private readonly IUserHandler myHandler;
 }
 
 
-public class UserDTO
+public sealed class UserDTO
 {
     public UserDTO(User user)
     {
-        id1 = user.UserID;
-        ident1 = user.UserName;
-        display1 = user.Display;
-        eMail1 = user.EMail;
-        created1 = user.CreatedAt;
-        modified1 = user.UpdatedAt;
+        userIdField = user.UserID;
+        userNameField = user.UserName;
+        displayNameField = user.DisplayName;
+        eMailAddressField = user.EMailAddress;
+        createdAtField = user.CreatedAt;
+        lastModifiedAtField = user.LastModifiedAt;
     }
 
-    public Guid Id { get => id1; }
-    public string Identifier { get => ident1; }
-    public string Display { get => display1; }
-    public string EMail { get => eMail1; }
-    public DateTime CreatedAt { get => created1; }
-    public DateTime UpdatedAt { get => modified1; }
+    public Guid UserID { get => userIdField; }
+    public string UserName { get => userNameField; }
+    public string DisplayName { get => displayNameField; }
+    public string EMailAddress { get => eMailAddressField; }
+    public DateTime CreatedAt { get => createdAtField; }
+    public DateTime UpdatedAt { get => lastModifiedAtField; }
 
-    private readonly Guid id1;
-    private readonly string ident1;
-    private readonly string display1;
-    private readonly string eMail1;
-    private readonly DateTime created1;
-    private readonly DateTime modified1;
+    private readonly Guid userIdField;
+    private readonly string userNameField;
+    private readonly string displayNameField;
+    private readonly string eMailAddressField;
+    private readonly DateTime createdAtField;
+    private readonly DateTime lastModifiedAtField;
 }
 
 
-public class CreateUserDTO
+public sealed class CreateUserDTO
 {
-    public CreateUserDTO(string identifier,
-        string display, string eMail)
+    public CreateUserDTO(string userName,
+        string displayName, string eMailAddress)
     {
-        identifier1 = identifier;
-        displayName1 = display;
-        eMailAddress1 = eMail;
+        userNameField = userName;
+        displayNameField = displayName;
+        eMailAddressField = eMailAddress;
     }
 
-    public string Identifier { get => identifier1; }
-    public string Display { get => displayName1; }
-    public string EMail { get => eMailAddress1; }
+    public string UserName { get => userNameField; }
+    public string DisplayName { get => displayNameField; }
+    public string EMailAddress { get => eMailAddressField; }
 
-    private string identifier1;
-    private readonly string displayName1;
-    private readonly string eMailAddress1;
+    private readonly string userNameField;
+    private readonly string displayNameField;
+    private readonly string eMailAddressField;
 }
 
 
-public class UpdateUserDTO
+public sealed class UpdateUserDTO
 {
-    public UpdateUserDTO(string display, string eMail)
+    public UpdateUserDTO(
+        string displayName, string eMailAddress)
     {
-        displayName1 = display;
-        eMailAddress1 = eMail;
+        displayNameField = displayName;
+        eMailAddressField = eMailAddress;
     }
 
-    public string Display { get => displayName1; }
-    public string EMail { get => eMailAddress1; }
+    public string DisplayName { get => displayNameField; }
+    public string EMail { get => eMailAddressField; }
 
-    private readonly string displayName1;
-    private readonly string eMailAddress1;
+    private readonly string displayNameField;
+    private readonly string eMailAddressField;
 }
-#endregion UsersRestAPI classes
+#endregion "NotesBackEnd/UsersRestAPI.cs"
