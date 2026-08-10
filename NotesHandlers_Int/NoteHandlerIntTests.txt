@@ -1,0 +1,91 @@
+﻿﻿#pragma region '1'
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using NullPointersEtc.NotesJournalApp.NotesStorage;
+using NullPointersEtc.NotesJournalApp.NotesHandlers;
+using NullPointersEtc.NotesJournalApp.NoteEntity;
+using System;
+using System.Threading.Tasks;
+
+public class NoteHandlerIntegrationTests
+{
+    private NotesDbContextForSqlite CreateDb()
+    {
+        var options = new DbContextOptionsBuilder<NotesDbContextForSqlite>()
+            .UseSqlite("Data Source=:memory:")
+            .Options;
+
+        var db = new NotesDbContextForSqlite(options);
+        db.Database.OpenConnection();
+        db.Database.EnsureCreated();
+        return db;
+    }
+
+    [Fact]
+    public async Task CreateNote_PersistsToSQLite()
+    {
+        var db = CreateDb();
+        var repo = new NoteRepository(db);
+        var handler = new NoteHandler(repo);
+
+        var note = await handler.CreateNoteWithHandlerAsync("Title1", "Body1");
+
+        Assert.NotEqual(Guid.Empty, note.NoteID);
+        Assert.Equal("Title1", note.Title);
+        Assert.Equal("Body1", note.Body);
+
+        var fromDb = await repo.GetNoteByIdAsync(note.NoteID);
+        Assert.Equal("Title1", fromDb.Title);
+    }
+
+    [Fact]
+    public async Task UpdateNote_ChangesPersistInSQLite()
+    {
+        var db = CreateDb();
+        var repo = new NoteRepository(db);
+        var handler = new NoteHandler(repo);
+
+        var note = await handler.CreateNoteWithHandlerAsync("Old", "OldBody");
+
+        var updated = await handler.UpdateNoteWithHandlerAsync(
+            note.NoteID, "New", "NewBody");
+
+        Assert.Equal("New", updated.Title);
+        Assert.Equal("NewBody", updated.Body);
+
+        var fromDb = await repo.GetNoteByIdAsync(note.NoteID);
+        Assert.Equal("New", fromDb.Title);
+    }
+
+    [Fact]
+    public async Task SearchNotes_FindsMatches()
+    {
+        var db = CreateDb();
+        var repo = new NoteRepository(db);
+        var handler = new NoteHandler(repo);
+
+        await handler.CreateNoteWithHandlerAsync("Alpha", "Body");
+        await handler.CreateNoteWithHandlerAsync("Beta", "Body");
+        await handler.CreateNoteWithHandlerAsync("Gamma", "Body");
+
+        var results = await handler.SearchNotesWithHandlerAsync("a");
+
+        Assert.True(results.Any(n => n.Title == "Alpha"));
+        Assert.True(results.Any(n => n.Title == "Gamma"));
+    }
+
+    [Fact]
+    public async Task DeleteNote_RemovesFromSQLite()
+    {
+        var db = CreateDb();
+        var repo = new NoteRepository(db);
+        var handler = new NoteHandler(repo);
+
+        var note = await handler.CreateNoteWithHandlerAsync("T", "B");
+
+        await handler.DeleteNoteWithHandlerAsync(note.NoteID);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repo.GetNoteByIdAsync(note.NoteID));
+    }
+}

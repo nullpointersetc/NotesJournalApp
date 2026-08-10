@@ -52,6 +52,22 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build NotesHandlers_IntegrationTests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "NotesHandlers_Int\\NotesHandlers_IntegrationTests.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Run NotesBackEnd",
             "command": "dotnet",
             "type": "shell",
@@ -90,6 +106,22 @@
             "args": [
                 "test",
                 "NotesHandlers_Tests",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesHandlers_IntegrationTests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "test",
+                "NotesHandlers_Int\\NotesHandlers_IntegrationTests.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

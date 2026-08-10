@@ -1,0 +1,90 @@
+﻿﻿#region "NotesHandlers_Int/UserHandlerIntTests.cs"
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using NullPointersEtc.NotesJournalApp.NotesStorage;
+using NullPointersEtc.NotesJournalApp.NotesHandlers;
+using NullPointersEtc.NotesJournalApp.UserEntity;
+using System;
+using System.Threading.Tasks;
+
+public class UserHandlerIntegrationTests
+{
+    private NotesDbContextForSqlite CreateDb()
+    {
+        var options = new DbContextOptionsBuilder<NotesDbContextForSqlite>()
+            .UseSqlite("Data Source=:memory:")
+            .Options;
+
+        var db = new NotesDbContextForSqlite(options);
+        db.Database.OpenConnection();
+        db.Database.EnsureCreated();
+        return db;
+    }
+
+    [Fact]
+    public async Task CreateUser_PersistsToSQLite()
+    {
+        var db = CreateDb();
+        var repo = new UserRepository(db);
+        var handler = new UserHandler(repo);
+
+        var user = await handler.CreateUserWithHandlerAsync(
+            "user1", "User One", "user1@mail.com");
+
+        Assert.Equal("user1", user.UserName);
+
+        var fromDb = await repo.GetUserByUserIdAsync(user.UserID);
+        Assert.Equal("User One", fromDb.DisplayName);
+    }
+
+    [Fact]
+    public async Task UpdateUser_PersistsChanges()
+    {
+        var db = CreateDb();
+        var repo = new UserRepository(db);
+        var handler = new UserHandler(repo);
+
+        var user = await handler.CreateUserWithHandlerAsync(
+            "user1", "OldName", "old@mail.com");
+
+        var updated = await handler.UpdateUserWithHandlerAsync(
+            user.UserID, "NewName", "new@mail.com");
+
+        Assert.Equal("NewName", updated.DisplayName);
+
+        var fromDb = await repo.GetUserByUserIdAsync(user.UserID);
+        Assert.Equal("NewName", fromDb.DisplayName);
+    }
+
+    [Fact]
+    public async Task UniqueUserNameConstraint_IsEnforced()
+    {
+        var db = CreateDb();
+        var repo = new UserRepository(db);
+        var handler = new UserHandler(repo);
+
+        await handler.CreateUserWithHandlerAsync(
+            "user1", "User One", "one@mail.com");
+
+        await Assert.ThrowsAsync<Microsoft.EntityFrameworkCore.DbUpdateException>(
+            () => handler.CreateUserWithHandlerAsync(
+                "user1", "Duplicate", "dup@mail.com"));
+    }
+
+    [Fact]
+    public async Task DeleteUser_RemovesFromSQLite()
+    {
+        var db = CreateDb();
+        var repo = new UserRepository(db);
+        var handler = new UserHandler(repo);
+
+        var user = await handler.CreateUserWithHandlerAsync(
+            "user1", "User One", "one@mail.com");
+
+        await handler.DeleteWithHandlerAsync(user.UserID);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repo.GetUserByUserIdAsync(user.UserID));
+    }
+}
+#endregion "NotesHandlers_Int/UserHandlerIntTests.cs"
