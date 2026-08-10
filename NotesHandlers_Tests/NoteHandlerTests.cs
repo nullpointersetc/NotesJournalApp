@@ -10,12 +10,11 @@ using Fact = Xunit.FactAttribute;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Task = System.Threading.Tasks.Task;
 using It = Moq.It;
-using MoqReturnsExtensions = Moq.ReturnsExtensions;
+using ReturnsExtensions = Moq.ReturnsExtensions;
 using Times = Moq.Times;
 
 using MockINoteRepository =
     Moq.Mock<NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository>;
-using NullPointersEtc.NotesJournalApp.NoteEntity;
 
 namespace NullPointersEtc.NotesJournalApp.NotesHandlers_Tests;
 
@@ -28,7 +27,7 @@ public class NoteHandlerTests
     }
 
 
-    [@Fact]
+    [method: @Fact]
     public async Task CreateNoteCallsRepoAndReturnsNoteAsync()
     {
         Note expected = new()
@@ -40,9 +39,8 @@ public class NoteHandlerTests
             LastModifiedAt = DateTime.UtcNow
         };
 
-        MoqReturnsExtensions.ReturnsAsync(mockRepo.Setup(
-            iNoteRepository =>
-                iNoteRepository.CreateNoteAsync(It.IsAny<Note>())),
+        ReturnsExtensions.ReturnsAsync(mockRepo.Setup(
+            iNoteRepo => iNoteRepo.CreateNoteAsync(It.IsAny<Note>())),
             expected);
 
         Note actual = await noteHandler.CreateNoteWithHandlerAsync(
@@ -51,10 +49,89 @@ public class NoteHandlerTests
         Assert.Equal(expected.Title, actual.Title);
         Assert.Equal(expected.Body, actual.Body);
 
-        mockRepo.Verify(iNoteRepository =>
-            iNoteRepository.CreateNoteAsync(It.IsAny<Note>()),
+        mockRepo.Verify(iNoteRepo =>
+            iNoteRepo.CreateNoteAsync(It.IsAny<Note>()),
             Times.Once);
     }
+
+
+    [method: @Fact]
+    public async Task GetAllNotesCallsRepository()
+    {
+        await noteHandler.GetAllNotesWithHandlerAsync();
+
+        mockRepo.Verify(
+            iNoteRepo => iNoteRepo.GetAllNotesAsync(),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task GetNoteByIdCallsRepository()
+    {
+        Guid id = Guid.NewGuid();
+        await noteHandler.GetNoteFromNoteIdWithHandlerAsync(id);
+
+        mockRepo.Verify(
+            iNoteRepo => iNoteRepo.GetNoteByIdAsync(id),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task SearchNotesCallsRepository()
+    {
+        await noteHandler.SearchNotesWithHandlerAsync("abc");
+
+        mockRepo.Verify(
+            iNoteRepo => iNoteRepo.SearchNotesAsync("abc"),
+            Times.Once);
+    }
+
+    [method: @Fact]
+    public async Task UpdateNoteMutatesFieldsAndCallsRepository()
+    {
+        Guid id = Guid.NewGuid();
+
+        var existing = new Note()
+        {
+            NoteID = id,
+            Title = "Old",
+            Body = "OldBody",
+            CreatedAt = DateTime.UtcNow.AddHours(-1),
+            LastModifiedAt = DateTime.UtcNow.AddHours(-1)
+        };
+
+        ReturnsExtensions.ReturnsAsync(
+            mockRepo.Setup(iNoteRepo => iNoteRepo.GetNoteByIdAsync(id)),
+                existing);
+
+        ReturnsExtensions.ReturnsAsync(
+            mockRepo.Setup(iNoteRepo => iNoteRepo.UpdateNoteAsync(existing)),
+            existing);
+
+        var result = await noteHandler.UpdateNoteWithHandlerAsync(
+            id, title: "New", body: "NewBody");
+
+        Assert.Equal("New", existing.Title);
+        Assert.Equal("NewBody", existing.Body);
+        Assert.True(existing.LastModifiedAt > existing.CreatedAt);
+
+        mockRepo.Verify(iNoteRepo => iNoteRepo.UpdateNoteAsync(existing),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task DeleteNoteCallsRepository()
+    {
+        Guid id = Guid.NewGuid();
+        await noteHandler.DeleteNoteWithHandlerAsync(id);
+
+        mockRepo.Verify(iNoteRepo => iNoteRepo.DeleteNoteAsync(id),
+            Times.Once);
+    }
+
 
     private readonly MockINoteRepository mockRepo;
     private readonly INoteHandler noteHandler;
