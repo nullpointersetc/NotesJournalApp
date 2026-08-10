@@ -28,7 +28,7 @@ public class UserHandlerTests
 
 
     [method: @Fact]
-    public async Task CreateNoteCallsRepoAndReturnsNoteAsync()
+    public async Task CreateUserCallsRepoAndReturnsUserAsync()
     {
         User expected = new()
         {
@@ -41,7 +41,7 @@ public class UserHandlerTests
         };
 
         ReturnsExtensions.ReturnsAsync(mockRepo.Setup(
-            iUserRepository => iUserRepository.CreateUserAsync(
+            iUserRepo => iUserRepo.CreateUserAsync(
                 It.IsAny<User>())), expected);
 
         User actual = await iUserHandler.CreateUserWithHandlerAsync(
@@ -53,9 +53,93 @@ public class UserHandlerTests
         Assert.Equal(expected.DisplayName, actual.DisplayName);
         Assert.Equal(expected.EMailAddress, actual.EMailAddress);
 
-        mockRepo.Verify(iUserRepository =>
-            iUserRepository.CreateUserAsync(It.IsAny<User>()),
+        mockRepo.Verify(
+            iUserRepo => iUserRepo.CreateUserAsync(It.IsAny<User>()),
             Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task GetUserByIdCallsRepoAsync()
+    {
+        Guid id = Guid.NewGuid();
+        await iUserHandler.GetUserFromUserIdWithHandlerAsync(id);
+
+        mockRepo.Verify(iUserRepo => iUserRepo.GetUserByUserIdAsync(id),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task GetUserByUserNameCallsRepoAsync()
+    {
+        await iUserHandler.GetUserFromUserNameWithHandlerAsync("abc");
+
+        mockRepo.Verify(iUserRepo => iUserRepo.GetUserByUserNameAsync("abc"),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task GetUserByDisplayNameCallsRepoAsync()
+    {
+        await iUserHandler.GetUserFromDisplayNameWithHandlerAsync("display");
+
+        mockRepo.Verify(
+            iUserRepo => iUserRepo.GetUserByDisplayNameAsync("display"),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task GetAllUsersCallsRepoAsync()
+    {
+        await iUserHandler.GetAllUsersWithHandlerAsync();
+        mockRepo.Verify(iUserRepo => iUserRepo.GetAllUsersAsync(), Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task UpdateUserMutatesFieldsAndCallsRepoAsync()
+    {
+        Guid id = Guid.NewGuid();
+
+        User existing = new()
+        {
+            UserID = id,
+            UserName = "u",
+            DisplayName = "old",
+            EMailAddress = "old@mail.com",
+            CreatedAt = DateTime.UtcNow.AddHours(-1),
+            LastModifiedAt = DateTime.UtcNow.AddHours(-1)
+        };
+
+        ReturnsExtensions.ReturnsAsync(
+            mockRepo.Setup(iUserRepo => iUserRepo.GetUserByUserIdAsync(id)),
+            existing);
+
+        ReturnsExtensions.ReturnsAsync(
+            mockRepo.Setup(iUserRepo => iUserRepo.UpdateUserAsync(existing)),
+            existing);
+
+        User result = await iUserHandler.UpdateUserWithHandlerAsync(
+            id, "new", "new@mail.com");
+
+        Assert.Equal("new", existing.DisplayName);
+        Assert.Equal("new@mail.com", existing.EMailAddress);
+        Assert.True(existing.LastModifiedAt > existing.CreatedAt);
+
+        mockRepo.Verify(iUserRepo => iUserRepo.UpdateUserAsync(existing),
+            Times.Once);
+    }
+
+
+    [method: @Fact]
+    public async Task DeleteUserCallsRepository()
+    {
+        Guid id = Guid.NewGuid();
+        await iUserHandler.DeleteWithHandlerAsync(id);
+        mockRepo.Verify(iUserRepo => iUserRepo.DeleteUserAsync(id), Times.Once);
     }
 
     private readonly MockIUserRepository mockRepo;
