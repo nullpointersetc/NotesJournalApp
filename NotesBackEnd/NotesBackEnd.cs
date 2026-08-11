@@ -50,8 +50,8 @@ using ConfigurationExtensions =
     Microsoft.Extensions.Configuration.ConfigurationExtensions;
 
 using Console = System.Console;
-using Enumerable = System.Linq.Enumerable;
 using StringComparison = System.StringComparison;
+using System.Linq;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -59,25 +59,20 @@ public class NotesBackEnd
 {
     private static void Main(string[] args)
     {
-        string dbSqlServer = "--db=SqlServer";
+        const string dbSqlServer = "--db=SqlServer",
+            dbSQLite = "--db=SQLite";
 
-        bool useSqlServer = Enumerable.Any(args,
-            arg => arg.Equals(dbSqlServer,
-                StringComparison.OrdinalIgnoreCase));
-
-        string dbSQLite = "--db=SQLite";
-
-        bool useSQLite = Enumerable.Any(args,
-            arg => arg.Equals(dbSQLite,
-            StringComparison.OrdinalIgnoreCase));
+        bool useSqlServer = args.Any(arg => arg.Equals(
+                dbSqlServer, StringComparison.OrdinalIgnoreCase)),
+            useSQLite = args.Any(arg => arg.Equals(
+                dbSQLite, StringComparison.OrdinalIgnoreCase));
 
         if (!useSqlServer && !useSQLite
             || useSqlServer && useSQLite)
         {
-            Console.Write("NotesBackEnd: must use one of ");
-            Console.Write(dbSqlServer);
-            Console.Write(" or ");
-            Console.WriteLine(dbSQLite);
+            Console.WriteLine("NotesBackEnd: must use one of " +
+                dbSqlServer + " or " + dbSQLite);
+
             return;
         }
 
