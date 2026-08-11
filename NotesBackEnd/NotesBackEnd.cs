@@ -28,8 +28,6 @@ using NotesDbContextForSqlite =
 using NotesDbContextForSqlServer =
     NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContextForSqlServer;
 
-using ServiceCollectionServiceExtensions =
-    Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions;
 
 using EntityFrameworkServiceCollectionExtensions =
     Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions;
@@ -52,6 +50,7 @@ using ConfigurationExtensions =
 using Console = System.Console;
 using StringComparison = System.StringComparison;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -79,17 +78,10 @@ public class NotesBackEnd
         WebApplicationBuilder builder =
             WebApplication.CreateBuilder(args);
 
-        ServiceCollectionServiceExtensions.AddScoped<
-            INoteHandler, NoteHandler>(builder.Services);
-
-        ServiceCollectionServiceExtensions.AddScoped<
-            IUserHandler, UserHandler>(builder.Services);
-
-        ServiceCollectionServiceExtensions.AddScoped<
-            INoteRepository, NoteRepository>(builder.Services);
-
-        ServiceCollectionServiceExtensions.AddScoped<
-            IUserRepository, UserRepository>(builder.Services);
+        builder.Services.AddScoped<INoteHandler, NoteHandler>();
+        builder.Services.AddScoped<IUserHandler, UserHandler>();
+        builder.Services.AddScoped<INoteRepository, NoteRepository>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
 
         if (useSqlServer)
             EntityFrameworkServiceCollectionExtensions.AddDbContext<
