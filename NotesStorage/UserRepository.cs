@@ -16,8 +16,12 @@ using TaskReturningUsers = System.Threading.Tasks.Task<
 using IUserRepository =
     NullPointersEtc.NotesJournalApp.UserEntity.IUserRepository;
 
+#region "dotnet add package Microsoft.EntityFrameworkCore --version 8.0.23"
+
 using EntityFrameworkQueryableExtensions =
     Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+
+#endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
 

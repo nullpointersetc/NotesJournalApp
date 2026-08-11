@@ -1,19 +1,28 @@
-#region "NotesDbContext.cs"
+#region "NotesStorage/NotesDbContext.cs"
 #pragma warning disable IDE0001, IDE0130, IDE0240, IDE0290
 #nullable enable
 
-/* To include this "using", you must execute:
-**
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore.Sqlite
-** dotnet add NotesStorage package Microsoft.EntityFrameworkCore.SqlServer
-*/
-
-using System.Reflection.Metadata;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
+
+#region "dotnet add package Microsoft.EntityFrameworkCore --version 8.0.23"
+
+using DbContext = Microsoft.EntityFrameworkCore.DbContext;
+using ModelBuilder = Microsoft.EntityFrameworkCore.ModelBuilder;
+
+#endregion
+
+#region "dotnet package add Microsoft.EntityFrameworkCore.Sqlite --version 8.0.23"
+#region "dotnet package add Microsoft.EntityFrameworkCore.SqlServer --version 8.0.23"
+
+using RelationalPropertyBuilderExtensions =
+    Microsoft.EntityFrameworkCore.RelationalPropertyBuilderExtensions;
+
+using RelationalEntityTypeBuilderExtensions =
+    Microsoft.EntityFrameworkCore.RelationalEntityTypeBuilderExtensions;
+
+#endregion
+#endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
 
@@ -40,32 +49,38 @@ public abstract class NotesDbContext : DbContext
         {
             entity.HasKey(note => note.NoteID);
 
-            entity.Property(note => note.Title)
-                .IsRequired()
-                .UseCollation(CaseInsensitiveCollation);
+            RelationalPropertyBuilderExtensions.UseCollation(
+                entity.Property(note => note.Title)  .IsRequired(),
+                collation: CaseInsensitiveCollation);
 
             entity.Property(note => note.Body)
                 .IsRequired();
-        }).Entity<Note>().ToTable("NOTES");
+        });
+
+        RelationalEntityTypeBuilderExtensions.ToTable(
+            builder.Entity<Note>(), name: "NOTES");
 
         builder.Entity<User>(entity =>
         {
             entity.HasKey(user => user.UserID);
 
-            entity.Property(user => user.UserName)
-                .IsRequired()
-                .UseCollation(CaseInsensitiveCollation);
+            RelationalPropertyBuilderExtensions.UseCollation(
+                entity.Property(user => user.UserName).IsRequired(),
+                collation: CaseInsensitiveCollation);
 
-            entity.Property(user => user.DisplayName)
-                .IsRequired()
-                .UseCollation(CaseInsensitiveCollation);
+            RelationalPropertyBuilderExtensions.UseCollation(
+                entity.Property(user => user.DisplayName).IsRequired(),
+                collation: CaseInsensitiveCollation);
 
             entity.Property(user => user.EMailAddress)
                 .IsRequired();
-            
+
             entity.HasIndex(user => user.UserName).IsUnique();
             entity.HasIndex(user => user.DisplayName).IsUnique();
-        }).Entity<User>().ToTable("USERS");
+        });
+
+        RelationalEntityTypeBuilderExtensions.ToTable(
+            builder.Entity<User>(), name: "USERS");
     }
 
     public abstract string CaseInsensitiveCollation { get; }
@@ -95,4 +110,4 @@ public class NotesDbContextForSqlServer : NotesDbContext
     { get => "SQL_Latin1_General_CP1_CI_AS"; }
 }
 
-#endregion "NotesDbContext.cs"
+#endregion "NotesStorage/NotesDbContext.cs"

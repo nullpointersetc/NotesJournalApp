@@ -14,11 +14,15 @@ using TaskReturningNotes = System.Threading.Tasks.Task<
     System.Collections.Generic.IEnumerable<
         NullPointersEtc.NotesJournalApp.NoteEntity.Note>>;
 
+using INoteRepository =
+    NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository;
+
+#region "dotnet add package Microsoft.EntityFrameworkCore --version 8.0.23"
+
 using EntityFrameworkQueryableExtensions =
     Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
-using INoteRepository =
-    NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository;
+#endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
 
