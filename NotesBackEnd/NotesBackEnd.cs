@@ -31,9 +31,6 @@ using NotesDbContextForSqlServer =
 using ServiceCollectionServiceExtensions =
     Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions;
 
-using OpenApiServiceCollectionExtensions =
-    Microsoft.Extensions.DependencyInjection.OpenApiServiceCollectionExtensions;
-
 using EntityFrameworkServiceCollectionExtensions =
     Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions;
 
@@ -45,9 +42,6 @@ using SqliteDbContextOptionsBuilderExtensions =
 
 using HostEnvironmentEnvExtensions =
     Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions;
-
-using OpenApiEndpointRouteBuilderExtensions =
-    Microsoft.AspNetCore.Builder.OpenApiEndpointRouteBuilderExtensions;
 
 using HttpsPolicyBuilderExtensions =
     Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions;
@@ -102,8 +96,6 @@ public class NotesBackEnd
         ServiceCollectionServiceExtensions.AddScoped<
             IUserRepository, UserRepository>(builder.Services);
 
-        OpenApiServiceCollectionExtensions.AddOpenApi(builder.Services);
-
         if (useSqlServer)
             EntityFrameworkServiceCollectionExtensions.AddDbContext<
                 NotesDbContextForSqlServer>(builder.Services,
@@ -121,10 +113,6 @@ public class NotesBackEnd
                         builder.Configuration, "NotesDb")));
 
         WebApplication app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (HostEnvironmentEnvExtensions.IsDevelopment(app.Environment))
-            OpenApiEndpointRouteBuilderExtensions.MapOpenApi(app);
 
         HttpsPolicyBuilderExtensions.UseHttpsRedirection(app);
         app.Run();
