@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- "NotesHandlers_Int/NotesHandlers_IntegrationTests.csproj" -->
+  <!-- Project: "NotesHandlers_Int/NotesHandlers_IntegrationTests.csproj" -->
+  <!-- File: "NoteHandlerIntTests.cs" -->
+  <!-- File: "UserHandlerIntTests.cs" -->
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -19,4 +21,5 @@
     <ProjectReference Include="..\NotesStorage\NotesStorage.csproj" />
   </ItemGroup>
 
+  <!-- Project: "NotesHandlers_Int/NotesHandlers_IntegrationTests.csproj" -->
 </Project>

@@ -1,4 +1,5 @@
 <Solution>
+  <!-- Solution "NotesJournalApp.slnx" -->
   <Project Path="NotesBackEnd/NotesBackEnd.csproj" />
   <Project Path="NotesDomain/NotesDomain.csproj" />
   <Project Path="NotesDomain_Tests/NotesDomain_Tests.csproj" />
@@ -6,4 +7,5 @@
   <Project Path="NotesHandlers_Tests/NotesHandlers_Tests.csproj" />
   <Project Path="NotesHandlers_Int/NotesHandlers_IntegrationTests.csproj" />
   <Project Path="NotesStorage/NotesStorage.csproj" />
+  <!-- Solution "NotesJournalApp.slnx" -->
 </Solution>
