@@ -29,28 +29,20 @@ using NotesDbContextForSqlServer =
     NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContextForSqlServer;
 
 
-using EntityFrameworkServiceCollectionExtensions =
-    Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions;
 
-using SqlServerDbContextOptionsExtensions =
-    Microsoft.EntityFrameworkCore.SqlServerDbContextOptionsExtensions;
 
-using SqliteDbContextOptionsBuilderExtensions =
-    Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions;
 
-using HostEnvironmentEnvExtensions =
-    Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions;
 
 using HttpsPolicyBuilderExtensions =
     Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions;
 
-using ConfigurationExtensions =
-    Microsoft.Extensions.Configuration.ConfigurationExtensions;
 
 using Console = System.Console;
 using StringComparison = System.StringComparison;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -83,21 +75,17 @@ public class NotesBackEnd
         builder.Services.AddScoped<INoteRepository, NoteRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+        string conn = builder.Configuration.GetConnectionString("NotesDb")
+            ?? throw new System.InvalidOperationException(
+                "Connection string \"NotesDb\" not found");
+
         if (useSqlServer)
-            EntityFrameworkServiceCollectionExtensions.AddDbContext<
-                NotesDbContextForSqlServer>(builder.Services,
-                    options => SqlServerDbContextOptionsExtensions.UseSqlServer(
-                        options,
-                        ConfigurationExtensions.GetConnectionString(
-                            builder.Configuration, "AzureSql")));
+            builder.Services.AddDbContext<NotesDbContextForSqlServer>(
+                optionsBuilder => optionsBuilder.UseSqlServer(conn));
 
         if (useSQLite)
-            EntityFrameworkServiceCollectionExtensions.AddDbContext<
-                NotesDbContextForSqlite>(builder.Services,
-                options => SqliteDbContextOptionsBuilderExtensions.UseSqlite(
-                    options,
-                    ConfigurationExtensions.GetConnectionString(
-                        builder.Configuration, "NotesDb")));
+            builder.Services.AddDbContext<NotesDbContextForSqlite>(
+                optionsBuilder => optionsBuilder.UseSqlite(conn));
 
         WebApplication app = builder.Build();
 
