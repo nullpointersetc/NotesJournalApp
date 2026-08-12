@@ -10,8 +10,8 @@ using Fact = Xunit.FactAttribute;
 using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
 using Task = System.Threading.Tasks.Task;
 using It = Moq.It;
-using ReturnsExtensions = Moq.ReturnsExtensions;
 using Times = Moq.Times;
+using Moq;
 
 using MockIUserRepository =
     Moq.Mock<NullPointersEtc.NotesJournalApp.UserEntity.IUserRepository>;
@@ -40,9 +40,9 @@ public class UserHandlerTests
             LastModifiedAt = DateTime.UtcNow
         };
 
-        ReturnsExtensions.ReturnsAsync(mockRepo.Setup(
-            iUserRepo => iUserRepo.CreateUserAsync(
-                It.IsAny<User>())), expected);
+        mockRepo.Setup(iUserRepo =>
+            iUserRepo.CreateUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(expected);
 
         User actual = await iUserHandler.CreateUserWithHandlerAsync(
             userName: expected.UserName,
@@ -114,13 +114,13 @@ public class UserHandlerTests
             LastModifiedAt = DateTime.UtcNow.AddHours(-1)
         };
 
-        ReturnsExtensions.ReturnsAsync(
-            mockRepo.Setup(iUserRepo => iUserRepo.GetUserByUserIdAsync(id)),
-            existing);
+        mockRepo.Setup(iUserRepo =>
+            iUserRepo.GetUserByUserIdAsync(id))
+            .ReturnsAsync(existing);
 
-        ReturnsExtensions.ReturnsAsync(
-            mockRepo.Setup(iUserRepo => iUserRepo.UpdateUserAsync(existing)),
-            existing);
+        mockRepo.Setup(iUserRepo =>
+            iUserRepo.UpdateUserAsync(existing))
+            .ReturnsAsync(existing);
 
         User result = await iUserHandler.UpdateUserWithHandlerAsync(
             id, "new", "new@mail.com");

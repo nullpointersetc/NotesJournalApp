@@ -1,4 +1,6 @@
+/.vs
 /NotesBackEnd/bin
+/NotesBackEnd/NotesBackEnd.csproj.user
 /NotesBackEnd/obj
 /NotesDomain/bin
 /NotesDomain/obj

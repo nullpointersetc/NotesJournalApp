@@ -10,8 +10,8 @@ using Fact = Xunit.FactAttribute;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Task = System.Threading.Tasks.Task;
 using It = Moq.It;
-using ReturnsExtensions = Moq.ReturnsExtensions;
 using Times = Moq.Times;
+using Moq;
 
 using MockINoteRepository =
     Moq.Mock<NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository>;
@@ -39,9 +39,9 @@ public class NoteHandlerTests
             LastModifiedAt = DateTime.UtcNow
         };
 
-        ReturnsExtensions.ReturnsAsync(mockRepo.Setup(
-            iNoteRepo => iNoteRepo.CreateNoteAsync(It.IsAny<Note>())),
-            expected);
+        mockRepo.Setup(
+            iNoteRepo => iNoteRepo.CreateNoteAsync(It.IsAny<Note>()))
+            .ReturnsAsync(expected);
 
         Note actual = await noteHandler.CreateNoteWithHandlerAsync(
             title: expected.Title, body: expected.Body);
@@ -102,13 +102,11 @@ public class NoteHandlerTests
             LastModifiedAt = DateTime.UtcNow.AddHours(-1)
         };
 
-        ReturnsExtensions.ReturnsAsync(
-            mockRepo.Setup(iNoteRepo => iNoteRepo.GetNoteByIdAsync(id)),
-                existing);
+        mockRepo.Setup(iNoteRepo => iNoteRepo.GetNoteByIdAsync(id))
+            .ReturnsAsync(existing);
 
-        ReturnsExtensions.ReturnsAsync(
-            mockRepo.Setup(iNoteRepo => iNoteRepo.UpdateNoteAsync(existing)),
-            existing);
+        mockRepo.Setup(iNoteRepo => iNoteRepo.UpdateNoteAsync(existing))
+            .ReturnsAsync(existing);
 
         var result = await noteHandler.UpdateNoteWithHandlerAsync(
             id, title: "New", body: "NewBody");
