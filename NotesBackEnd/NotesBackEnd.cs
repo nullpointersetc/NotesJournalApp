@@ -33,8 +33,6 @@ using NotesDbContextForSqlServer =
 
 
 
-using HttpsPolicyBuilderExtensions =
-    Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions;
 
 
 using Console = System.Console;
@@ -43,6 +41,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -88,8 +87,7 @@ public class NotesBackEnd
                 optionsBuilder => optionsBuilder.UseSqlite(conn));
 
         WebApplication app = builder.Build();
-
-        HttpsPolicyBuilderExtensions.UseHttpsRedirection(app);
+        app.UseHttpsRedirection();
         app.Run();
     }
 }
