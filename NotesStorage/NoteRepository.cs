@@ -18,10 +18,7 @@ using INoteRepository =
     NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository;
 
 #region "dotnet add package Microsoft.EntityFrameworkCore --version 8.0.23"
-
-using EntityFrameworkQueryableExtensions =
-    Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
-
+using Microsoft.EntityFrameworkCore;
 #endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
@@ -49,20 +46,18 @@ public sealed class NoteRepository : INoteRepository
 
 
     public async TaskReturningNotes GetAllNotesAsync()
-        => await EntityFrameworkQueryableExtensions.ToListAsync(myDB.Notes);
+        => await myDB.Notes.ToListAsync<Note>();
 
 
     public TaskReturningNote GetNoteByIdAsync(Guid noteID)
-        => EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Notes, predicate: note => note.NoteID == noteID);
+        => myDB.Notes.FirstAsync<Note>(predicate: note => note.NoteID == noteID);
 
 
     public async TaskReturningNotes SearchNotesAsync(
             string query)
-        => await EntityFrameworkQueryableExtensions.ToListAsync(
-            Queryable.Where(myDB.Notes,
+        => await Queryable.Where(myDB.Notes,
                 predicate: note => note.Title.Contains(query)
-                    || note.Body.Contains(query)));
+                    || note.Body.Contains(query)).ToListAsync<Note>();
 
 
     public async TaskReturningNote UpdateNoteAsync(Note note)
@@ -75,8 +70,8 @@ public sealed class NoteRepository : INoteRepository
 
     public async Task DeleteNoteAsync(Guid noteID)
     {
-        Note note1 = await EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Notes, predicate: note => note.NoteID == noteID);
+        Note note1 = await myDB.Notes.FirstAsync(
+            predicate: note => note.NoteID == noteID);
 
         myDB.Notes.Remove(note1);
         await myDB.SaveChangesAsync();

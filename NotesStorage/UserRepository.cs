@@ -17,10 +17,7 @@ using IUserRepository =
     NullPointersEtc.NotesJournalApp.UserEntity.IUserRepository;
 
 #region "dotnet add package Microsoft.EntityFrameworkCore --version 8.0.23"
-
-using EntityFrameworkQueryableExtensions =
-    Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
-
+using Microsoft.EntityFrameworkCore;
 #endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
@@ -39,8 +36,7 @@ public sealed class UserRepository : IUserRepository
     }
 
 
-    public async TaskReturningUser
-        CreateUserAsync(User user)
+    public async TaskReturningUser CreateUserAsync(User user)
     {
         myDB.Users.Add(user);
         await myDB.SaveChangesAsync();
@@ -49,27 +45,24 @@ public sealed class UserRepository : IUserRepository
 
 
     public TaskReturningUser GetUserByUserIdAsync(Guid userID)
-        => EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Users, predicate: user => user.UserID == userID);
+        => myDB.Users.FirstAsync<User>(
+            predicate: user => user.UserID == userID);
 
 
     public TaskReturningUser GetUserByUserNameAsync(
             string userName)
-        => EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Users,
-            predicate: user => user.UserName == userName);
+        => myDB.Users.FirstAsync<User>(
+                predicate: user => user.UserName == userName);
 
 
     public TaskReturningUser GetUserByDisplayNameAsync(
         string displayName)
-        => EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Users,
+        => myDB.Users.FirstAsync<User>(
             predicate: user => user.DisplayName == displayName);
 
 
     public async TaskReturningUsers GetAllUsersAsync()
-        => await EntityFrameworkQueryableExtensions.ToListAsync<User>(
-            myDB.Users);
+        => await myDB.Users.ToListAsync<User>();
 
 
     public async TaskReturningUser UpdateUserAsync(User user)
@@ -83,8 +76,7 @@ public sealed class UserRepository : IUserRepository
     public async Task DeleteUserAsync(
         Guid userID)
     {
-        User user = await EntityFrameworkQueryableExtensions.FirstAsync(
-            myDB.Users,
+        User user = await myDB.Users.FirstAsync<User>(
             predicate: user => user.UserID == userID);
 
         myDB.Users.Remove(user);
