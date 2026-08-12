@@ -3,7 +3,7 @@
 #nullable enable
 
 using DateTime = System.DateTime;
-using Enumerable = System.Linq.Enumerable;
+using System.Linq;
 using Guid = System.Guid;
 using Key = System.ComponentModel.DataAnnotations.KeyAttribute;
 using StringLength = System.ComponentModel.DataAnnotations.StringLengthAttribute;
@@ -101,7 +101,7 @@ public sealed class User
         => identifier.Length >= 1
             && identifier.Length <= MAX_USER_NAME_LENGTH
             && char.IsAsciiLetter(identifier[0])
-            && Enumerable.All(identifier,
+            && identifier.All<char>(
                 ch => char.IsAsciiLetterOrDigit(ch) || ch == '_');
 
     public static bool NameIsValid(string name)

@@ -15,7 +15,7 @@ using Users = System.Collections.Generic.IEnumerable<
 
 using ApiController = Microsoft.AspNetCore.Mvc.ApiControllerAttribute;
 using ControllerBase = Microsoft.AspNetCore.Mvc.ControllerBase;
-using Enumerable = System.Linq.Enumerable;
+using System.Linq;
 using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
 using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
@@ -86,9 +86,7 @@ public sealed class UsersRestAPI : ControllerBase
     public async TaskReturningIActionResult HttpGetAllUsersAsync()
     {
         Users users = await myHandler.GetAllUsersWithHandlerAsync();
-
-        return Ok(Enumerable.Select(users,
-            selector: user => new UserDTO(user)));
+        return Ok(users.Select<User, UserDTO>(user => new UserDTO(user)));
     }
 
 

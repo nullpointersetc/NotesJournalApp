@@ -10,6 +10,7 @@ using NoteRepository = NullPointersEtc.NotesJournalApp.NotesStorage.NoteReposito
 using NoteHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.NoteHandler;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Task = System.Threading.Tasks.Task;
+using System.Linq;
 
 using SqliteDbContextOptionsBuilderExtensions =
     Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions;
@@ -89,8 +90,8 @@ public class NoteHandlerIntegrationTests
         await handler.CreateNoteWithHandlerAsync("Gamma", "Body");
 
         Notes results = await handler.SearchNotesWithHandlerAsync("a");
-        Assert.True(System.Linq.Enumerable.Any(results, note => note.Title == "Alpha"));
-        Assert.True(System.Linq.Enumerable.Any(results, note => note.Title == "Gamma"));
+        Assert.True(results.Any<Note>(note => note.Title == "Alpha"));
+        Assert.True(results.Any<Note>(note => note.Title == "Gamma"));
     }
 
     [method: @Fact]

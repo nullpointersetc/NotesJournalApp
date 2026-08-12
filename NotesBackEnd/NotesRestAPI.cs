@@ -5,7 +5,7 @@
 using ApiController = Microsoft.AspNetCore.Mvc.ApiControllerAttribute;
 using ControllerBase = Microsoft.AspNetCore.Mvc.ControllerBase;
 using DateTime = System.DateTime;
-using Enumerable = System.Linq.Enumerable;
+using System.Linq;
 using FromQuery = Microsoft.AspNetCore.Mvc.FromQueryAttribute;
 using Guid = System.Guid;
 using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
@@ -61,8 +61,7 @@ public sealed class NotesRestAPI : ControllerBase
     {
         Notes results = await myHandler.SearchNotesWithHandlerAsync(query);
 
-        return Ok(Enumerable.Select<Note, NoteDTO>(
-            results, n => new NoteDTO(n)));
+        return Ok(results.Select<Note, NoteDTO>(n => new NoteDTO(n)));
     }
 
 
