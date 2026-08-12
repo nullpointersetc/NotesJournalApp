@@ -4,7 +4,7 @@
 
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Guid = System.Guid;
-using Queryable = System.Linq.Queryable;
+using System.Linq;
 using Task = System.Threading.Tasks.Task;
 
 using TaskReturningNote = System.Threading.Tasks.Task<
@@ -55,7 +55,7 @@ public sealed class NoteRepository : INoteRepository
 
     public async TaskReturningNotes SearchNotesAsync(
             string query)
-        => await Queryable.Where(myDB.Notes,
+        => await myDB.Notes.Where<Note>(
                 predicate: note => note.Title.Contains(query)
                     || note.Body.Contains(query)).ToListAsync<Note>();
 
