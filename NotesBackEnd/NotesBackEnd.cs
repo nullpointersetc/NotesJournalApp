@@ -1,40 +1,14 @@
 #region "NotesBackEnd/NotesBackEnd.cs"
 
 #pragma warning disable IDE0001, IDE0002, IDE0130, IDE0240
-#pragma warning disable IDE0350
 #nullable enable
 
-using INoteHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.INoteHandler;
-using IUserHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.IUserHandler;
-
-using NoteHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.NoteHandler;
-using UserHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.UserHandler;
-
-using INoteRepository = NullPointersEtc.NotesJournalApp.NoteEntity.INoteRepository;
-using IUserRepository = NullPointersEtc.NotesJournalApp.UserEntity.IUserRepository;
-
-using NoteRepository = NullPointersEtc.NotesJournalApp.NotesStorage.NoteRepository;
-using UserRepository = NullPointersEtc.NotesJournalApp.NotesStorage.UserRepository;
-
-using WebApplication =
-    Microsoft.AspNetCore.Builder.WebApplication;
-
-using WebApplicationBuilder =
-    Microsoft.AspNetCore.Builder.WebApplicationBuilder;
-
-using NotesDbContextForSqlite =
-    NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContextForSqlite;
-
-using NotesDbContextForSqlServer =
-    NullPointersEtc.NotesJournalApp.NotesStorage.NotesDbContextForSqlServer;
-
-
-
-
-
-
-
-
+using NullPointersEtc.NotesJournalApp.NotesHandlers;
+using NullPointersEtc.NotesJournalApp.NotesStorage;
+using NullPointersEtc.NotesJournalApp.NoteEntity;
+using NullPointersEtc.NotesJournalApp.UserEntity;
+using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
+using WebApplicationBuilder = Microsoft.AspNetCore.Builder.WebApplicationBuilder;
 using Console = System.Console;
 using StringComparison = System.StringComparison;
 using System.Linq;
