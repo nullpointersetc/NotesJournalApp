@@ -34,11 +34,41 @@ public static class NotesRestAPI
 {
     public static void MapEndpoints(WebApplication app)
     {
-        app.MapPost(CreateNoteURI, HttpPostCreateNoteAsync);
-        app.MapGet(GetNoteURI, HttpGetNoteByNoteIdAsync);
-        app.MapPut(GetNoteURI, HttpPutUpdateNoteByNoteIdAsync);
-        app.MapDelete(GetNoteURI, HttpDeleteNoteByNoteIdAsync);
-        app.MapGet(SearchNotesURI, HttpGetSearchNotesAsync);
+        app.MapPost(CreateNoteURI, HttpPostCreateNoteAsync)
+            .WithTags("Notes")
+            .WithSummary("Create a new note")
+            .WithDescription("Creates a new note using the provided title and body.")
+            .Accepts<CreateNoteDTO>("application/json")
+            .Produces<NoteDTO>(StatusCodes.Status200OK);
+
+        app.MapGet(GetNoteURI, HttpGetNoteByNoteIdAsync)
+            .WithTags("Notes")
+            .WithSummary("Get a note by ID")
+            .WithDescription("Retrieves a note using its GUID identifier.")
+            .Produces<NoteDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapPut(GetNoteURI, HttpPutUpdateNoteByNoteIdAsync)
+            .WithTags("Notes")
+            .WithSummary("Update a note")
+            .WithDescription("Updates the title and body of an existing note.")
+            .Accepts<UpdateNoteDTO>("application/json")
+            .Produces<NoteDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapDelete(GetNoteURI, HttpDeleteNoteByNoteIdAsync)
+            .WithTags("Notes")
+            .WithSummary("Delete a note")
+            .WithDescription("Deletes a note using its GUID identifier.")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapGet(SearchNotesURI, HttpGetNotesFromSearchAsync)
+            .WithTags("Notes")
+            .WithSummary("Search notes")
+            .WithDescription("Searches notes by title or body text.")
+            .Produces<System.Collections.Generic.IEnumerable<NoteDTO>>(
+                StatusCodes.Status200OK);
     }
 
 
@@ -86,7 +116,7 @@ public static class NotesRestAPI
     private const string SearchNotesURI = "/api/notes/search";
 
     public static async TaskReturningIResult
-        HttpGetSearchNotesAsync(INoteHandler handler, string query)
+        HttpGetNotesFromSearchAsync(INoteHandler handler, string query)
     {
         var notes = await handler.SearchNotesWithHandlerAsync(query);
         return Results.Ok(notes.Select<Note, NoteDTO>(n => new NoteDTO(n)));

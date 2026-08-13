@@ -11,6 +11,7 @@ using Guid = System.Guid;
 using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Results = Microsoft.AspNetCore.Http.Results;
 
 using Users = System.Collections.Generic.IEnumerable<
@@ -26,13 +27,54 @@ public static class UsersRestAPI
     public static void MapEndpoints(
         Microsoft.AspNetCore.Builder.WebApplication app)
     {
-        app.MapPost(GetOrCreateUserURI, HttpPostCreateUserAsync);
-        app.MapGet(GetOrCreateUserURI, HttpGetAllUsersAsync);
-        app.MapGet(GetOrUpdateUserURI, HttpGetUserByUserIdAsync);
-        app.MapPut(GetOrUpdateUserURI, HttpPutUpdateUserByUserIdAsync);
-        app.MapDelete(GetOrUpdateUserURI, HttpDeleteUserByUserIdAsync);
-        app.MapGet(GetUserByNameURI, HttpGetUserByUserNameAsync);
-        app.MapGet(GetUserByDisplayName, HttpGetUserByDisplayNameAsync);
+        app.MapPost(GetOrCreateUserURI, HttpPostCreateUserAsync)
+            .WithTags("Users")
+            .WithSummary("Create a new user")
+            .WithDescription("Creates a new user with username, display name, and email address.")
+            .Accepts<CreateUserDTO>("application/json")
+            .Produces<UserDTO>(StatusCodes.Status200OK);
+
+        app.MapGet(GetOrCreateUserURI, HttpGetAllUsersAsync)
+            .WithTags("Users")
+            .WithSummary("Get all users")
+            .WithDescription("Returns all users in the system.")
+            .Produces<System.Collections.Generic.IEnumerable<UserDTO>>(StatusCodes.Status200OK);
+
+        app.MapGet(GetOrUpdateUserURI, HttpGetUserByUserIdAsync)
+            .WithTags("Users")
+            .WithSummary("Get a user by ID")
+            .WithDescription("Retrieves a user using their GUID identifier.")
+            .Produces<UserDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapPut(GetOrUpdateUserURI, HttpPutUpdateUserByUserIdAsync)
+            .WithTags("Users")
+            .WithSummary("Update a user")
+            .WithDescription("Updates the display name and email address of an existing user.")
+            .Accepts<UpdateUserDTO>("application/json")
+            .Produces<UserDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapDelete(GetOrUpdateUserURI, HttpDeleteUserByUserIdAsync)
+            .WithTags("Users")
+            .WithSummary("Delete a user")
+            .WithDescription("Deletes a user using its GUID identifier.")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapGet(GetUserByNameURI, HttpGetUserByUserNameAsync)
+            .WithTags("Users")
+            .WithSummary("Get a user by User Name")
+            .WithDescription("Retrieves a user using its user name.")
+            .Produces<UserDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapGet(GetUserByDisplayName, HttpGetUserByDisplayNameAsync)
+            .WithTags("Users")
+            .WithSummary("Get a user by Display Name")
+            .WithDescription("Retrieves a user using its display name.")
+            .Produces<UserDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
     }
 
     private static string GetOrCreateUserURI

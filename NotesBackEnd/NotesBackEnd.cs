@@ -7,8 +7,8 @@ using NullPointersEtc.NotesJournalApp.NotesHandlers;
 using NullPointersEtc.NotesJournalApp.NotesStorage;
 using NullPointersEtc.NotesJournalApp.NoteEntity;
 using NullPointersEtc.NotesJournalApp.UserEntity;
-using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
-using WebApplicationBuilder = Microsoft.AspNetCore.Builder.WebApplicationBuilder;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 using Console = System.Console;
 using StringComparison = System.StringComparison;
 using System.Linq;
@@ -46,6 +46,8 @@ public class NotesBackEnd
         builder.Services.AddScoped<IUserHandler, UserHandler>();
         builder.Services.AddScoped<INoteRepository, NoteRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
         string conn = builder.Configuration.GetConnectionString("NotesDb")
             ?? throw new System.InvalidOperationException(
@@ -62,6 +64,13 @@ public class NotesBackEnd
         WebApplication app = builder.Build();
         NotesRestAPI.MapEndpoints(app);
         UsersRestAPI.MapEndpoints(app);
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
         app.Run();
     }
 }

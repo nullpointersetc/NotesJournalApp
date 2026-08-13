@@ -19,5 +19,9 @@
     <ProjectReference Include="..\NotesStorage\NotesStorage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
   <!-- NotesBackEnd project - The REST API layer -->
 </Project>
