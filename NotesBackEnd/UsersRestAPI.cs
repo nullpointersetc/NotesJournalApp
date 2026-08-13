@@ -9,112 +9,122 @@ using IUserHandler =
 using DateTime = System.DateTime;
 using Guid = System.Guid;
 using User = NullPointersEtc.NotesJournalApp.UserEntity.User;
+using System.Linq;
+using Microsoft.AspNetCore.Builder;
+using Results = Microsoft.AspNetCore.Http.Results;
 
 using Users = System.Collections.Generic.IEnumerable<
     NullPointersEtc.NotesJournalApp.UserEntity.User>;
 
-using ApiController = Microsoft.AspNetCore.Mvc.ApiControllerAttribute;
-using ControllerBase = Microsoft.AspNetCore.Mvc.ControllerBase;
-using System.Linq;
-using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
-using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
-using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
-using HttpPut = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
-using Route = Microsoft.AspNetCore.Mvc.RouteAttribute;
-
-using TaskReturningIActionResult = System.Threading.Tasks.Task<
-    Microsoft.AspNetCore.Mvc.IActionResult>;
+using TaskReturningIResult = System.Threading.Tasks.Task<
+        Microsoft.AspNetCore.Http.IResult>;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
-[type: ApiController, Route("api/users")]
-public sealed class UsersRestAPI : ControllerBase
+public static class UsersRestAPI
 {
-    public UsersRestAPI(IUserHandler handler)
+    public static void MapEndpoints(
+        Microsoft.AspNetCore.Builder.WebApplication app)
     {
-        myHandler = handler;
+        app.MapPost(GetOrCreateUserURI, HttpPostCreateUserAsync);
+        app.MapGet(GetOrCreateUserURI, HttpGetAllUsersAsync);
+        app.MapGet(GetOrUpdateUserURI, HttpGetUserByUserIdAsync);
+        app.MapPut(GetOrUpdateUserURI, HttpPutUpdateUserByUserIdAsync);
+        app.MapDelete(GetOrUpdateUserURI, HttpDeleteUserByUserIdAsync);
+        app.MapGet(GetUserByNameURI, HttpGetUserByUserNameAsync);
+        app.MapGet(GetUserByDisplayName, HttpGetUserByDisplayNameAsync);
+    }
+
+    private static string GetOrCreateUserURI
+    {
+        get => "/api/users";
+    }
+
+    public static async TaskReturningIResult
+        HttpPostCreateUserAsync(
+            IUserHandler handler, CreateUserDTO dto)
+    {
+        User user = await handler.CreateUserWithHandlerAsync(
+            dto.UserName, dto.DisplayName, dto.EMailAddress);
+
+        return Results.Ok(new UserDTO(user));
+    }
+
+    public static async TaskReturningIResult
+        HttpGetAllUsersAsync(
+            IUserHandler handler)
+    {
+        Users users = await handler.GetAllUsersWithHandlerAsync();
+
+        return Results.Ok(users.Select<User, UserDTO>(
+            user => new UserDTO(user)));
+    }
+
+    private static string GetOrUpdateUserURI
+    {
+        get => "/api/users/{userID:guid:required}";
+    }
+
+    public static async TaskReturningIResult
+        HttpGetUserByUserIdAsync(
+            IUserHandler handler, Guid userID)
+    {
+        User user =
+            await handler.GetUserFromUserIdWithHandlerAsync(userID);
+
+        return Results.Ok(new UserDTO(user));
+    }
+
+    public static async TaskReturningIResult
+        HttpPutUpdateUserByUserIdAsync(
+            IUserHandler handler, Guid userID, UpdateUserDTO dto)
+    {
+        var updated = await handler.UpdateUserWithHandlerAsync(
+            userID, dto.DisplayName, dto.EMailAddress);
+
+        return Results.Ok(new UserDTO(updated));
+    }
+
+    public static async TaskReturningIResult
+        HttpDeleteUserByUserIdAsync(
+            IUserHandler handler, Guid userID)
+    {
+        await handler.DeleteWithHandlerAsync(userID);
+        return Results.NoContent();
     }
 
 
-    [method: HttpPost]
-    public async TaskReturningIActionResult HttpPostCreateUserAsync(
-        CreateUserDTO user)
+    private static string GetUserByNameURI
     {
-        User user2 = await myHandler.CreateUserWithHandlerAsync(
-            userName: user.UserName,
-            displayName: user.DisplayName,
-            eMail: user.EMailAddress);
+        get => "/api/usern/{userName:required}";
 
-        return Ok(new UserDTO(user2));
     }
 
-
-    [HttpGet("{userID:guid:required}")]
-    public async TaskReturningIActionResult HttpGetUserFromUserIdAsync(
-        Guid userID)
+    public static async TaskReturningIResult
+        HttpGetUserByUserNameAsync(
+            IUserHandler handler, string userName)
     {
         User user1 =
-            await myHandler.GetUserFromUserIdWithHandlerAsync(userID);
+            await handler.GetUserFromUserNameWithHandlerAsync(userName);
 
-        return Ok(new UserDTO(user1));
+        return Results.Ok(new UserDTO(user1));
     }
 
-
-    [HttpGet("uname/{userName:required}")]
-    public async TaskReturningIActionResult HttpGetUserFromUserNameAsync(
-            string userName)
+    private static string GetUserByDisplayName
     {
-        User user1 =
-            await myHandler.GetUserFromUserNameWithHandlerAsync(userName);
-
-        return Ok(new UserDTO(user1));
+        get => "/api/userd/{displayName:required}";
     }
 
-
-    [HttpGet("dname/{displayName:required}")]
-    public async TaskReturningIActionResult HttpGetUserFromDisplayAsyncName(
-        string displayName)
+    public static async TaskReturningIResult
+        HttpGetUserByDisplayNameAsync(
+            IUserHandler handler, string displayName)
     {
         User user1 = await
-            myHandler.GetUserFromDisplayNameWithHandlerAsync(displayName);
+            handler.GetUserFromDisplayNameWithHandlerAsync(displayName);
 
-        return Ok(new UserDTO(user1));
+        return Results.Ok(new UserDTO(user1));
     }
-
-
-    [HttpGet]
-    public async TaskReturningIActionResult HttpGetAllUsersAsync()
-    {
-        Users users = await myHandler.GetAllUsersWithHandlerAsync();
-        return Ok(users.Select<User, UserDTO>(user => new UserDTO(user)));
-    }
-
-
-    [HttpPut("{userID:guid:required}")]
-    public async TaskReturningIActionResult HttpPutUpdatedUserAsync(
-        Guid userID, UpdateUserDTO user)
-    {
-        User user1 = await myHandler.UpdateUserWithHandlerAsync(
-            userID: userID,
-            displayName: user.DisplayName,
-            eMailAddress: user.EMail);
-
-        return Ok(new UserDTO(user1));
-    }
-
-
-    [HttpDelete("{userID:guid}")]
-    public async TaskReturningIActionResult HttpDeleteUserAsync(
-        Guid userID)
-    {
-        await myHandler.DeleteWithHandlerAsync(userID);
-        return NoContent();
-    }
-
-
-    private readonly IUserHandler myHandler;
 }
-
 
 public sealed class UserDTO
 {
@@ -174,7 +184,7 @@ public sealed class UpdateUserDTO
     }
 
     public string DisplayName { get => displayNameField; }
-    public string EMail { get => eMailAddressField; }
+    public string EMailAddress { get => eMailAddressField; }
 
     private readonly string displayNameField;
     private readonly string eMailAddressField;

@@ -15,6 +15,9 @@ using HttpPut = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
 using INoteHandler = NullPointersEtc.NotesJournalApp.NotesHandlers.INoteHandler;
 using Note = NullPointersEtc.NotesJournalApp.NoteEntity.Note;
 using Route = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 using Notes = System.Collections.Generic.IEnumerable<
     NullPointersEtc.NotesJournalApp.NoteEntity.Note>;
@@ -22,71 +25,72 @@ using Notes = System.Collections.Generic.IEnumerable<
 using TaskReturningIActionResult =
     System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>;
 
+using TaskReturningIResult = System.Threading.Tasks.Task<
+        Microsoft.AspNetCore.Http.IResult>;
+
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
-[type: ApiController, Route("api/notes")]
-public sealed class NotesRestAPI : ControllerBase
+public static class NotesRestAPI
 {
-    public NotesRestAPI(INoteHandler handler)
+    public static void MapEndpoints(WebApplication app)
     {
-        myHandler = handler;
+        app.MapPost(CreateNoteURI, HttpPostCreateNoteAsync);
+        app.MapGet(GetNoteURI, HttpGetNoteByNoteIdAsync);
+        app.MapPut(GetNoteURI, HttpPutUpdateNoteByNoteIdAsync);
+        app.MapDelete(GetNoteURI, HttpDeleteNoteByNoteIdAsync);
+        app.MapGet(SearchNotesURI, HttpGetSearchNotesAsync);
     }
 
 
-    [method: HttpPost]
-    public async TaskReturningIActionResult HttpPostCreateNoteAsync(
-        CreateNoteDTO note)
-    {
-        Note note2 = await myHandler.CreateNoteWithHandlerAsync(
-            title: note.Title, body: note.Body);
+    private const string CreateNoteURI = "/api/notes";
 
-        return Ok(new NoteDTO(note2));
+    public static async TaskReturningIResult
+        HttpPostCreateNoteAsync(
+            INoteHandler handler, CreateNoteDTO dto)
+    {
+        Note note = await handler.CreateNoteWithHandlerAsync(
+            title: dto.Title, body: dto.Body);
+
+        return Results.Ok(new NoteDTO(note));
     }
 
 
-    [method: HttpGet("{noteID:guid}")]
-    public async TaskReturningIActionResult HttpGetNoteFromNoteIdAsync(
-        Guid noteID)
-    {
-        Note note1 = await myHandler.GetNoteFromNoteIdWithHandlerAsync(
-            noteID);
+    private const string GetNoteURI = "/api/notes/{noteID:guid:required}";
 
-        return Ok(new NoteDTO(note1));
+    public static async TaskReturningIResult
+        HttpGetNoteByNoteIdAsync(
+            INoteHandler handler, Guid noteID)
+    {
+        Note note = await handler.GetNoteFromNoteIdWithHandlerAsync(noteID);
+        return Results.Ok(new NoteDTO(note));
+    }
+
+    public static async TaskReturningIResult
+        HttpPutUpdateNoteByNoteIdAsync(
+            INoteHandler handler, Guid noteID, UpdateNoteDTO dto)
+    {
+        var updated = await handler.UpdateNoteWithHandlerAsync(noteID, dto.Title, dto.Body);
+        return Results.Ok(new NoteDTO(updated));
     }
 
 
-    [method: HttpGet("search")]
-    public async TaskReturningIActionResult HttpGetSearchNotesAsync(
-        [FromQuery] string query)
+    public static async TaskReturningIResult
+        HttpDeleteNoteByNoteIdAsync(
+            INoteHandler handler, Guid noteID)
     {
-        Notes results = await myHandler.SearchNotesWithHandlerAsync(query);
-
-        return Ok(results.Select<Note, NoteDTO>(n => new NoteDTO(n)));
+        await handler.DeleteNoteWithHandlerAsync(noteID);
+        return Results.NoContent();
     }
 
 
-    [method: HttpPut("{noteID:guid}")]
-    public async TaskReturningIActionResult HttpPutUpdateNoteAsync(
-        Guid noteID, UpdateNoteDTO note)
+    private const string SearchNotesURI = "/api/notes/search";
+
+    public static async TaskReturningIResult
+        HttpGetSearchNotesAsync(INoteHandler handler, string query)
     {
-        Note note2 = await myHandler.UpdateNoteWithHandlerAsync(
-            noteID: noteID,
-            title: note.Title, body: note.Body);
-
-        return Ok(new NoteDTO(note2));
+        var notes = await handler.SearchNotesWithHandlerAsync(query);
+        return Results.Ok(notes.Select<Note, NoteDTO>(n => new NoteDTO(n)));
     }
-
-
-    [HttpDelete("{noteID:guid}")]
-    public async TaskReturningIActionResult HttpDeleteNoteAsync(
-        Guid noteID)
-    {
-        await myHandler.DeleteNoteWithHandlerAsync(noteID);
-        return NoContent();
-    }
-
-
-    private readonly INoteHandler myHandler;
 }
 
 
@@ -124,7 +128,7 @@ public sealed class CreateNoteDTO
     }
     public string Title { get => titleField; }
     public string Body { get => bodyField; }
-    
+
     private readonly string titleField;
     private readonly string bodyField;
 }

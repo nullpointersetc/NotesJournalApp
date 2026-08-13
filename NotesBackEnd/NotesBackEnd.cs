@@ -15,7 +15,6 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Builder;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -61,8 +60,8 @@ public class NotesBackEnd
                 optionsBuilder => optionsBuilder.UseSqlite(conn));
 
         WebApplication app = builder.Build();
-        app.UseHttpsRedirection();
-        app.MapControllers();
+        NotesRestAPI.MapEndpoints(app);
+        UsersRestAPI.MapEndpoints(app);
         app.Run();
     }
 }
