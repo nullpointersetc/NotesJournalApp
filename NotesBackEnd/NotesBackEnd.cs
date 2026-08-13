@@ -10,11 +10,14 @@ using NullPointersEtc.NotesJournalApp.UserEntity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Console = System.Console;
-using StringComparison = System.StringComparison;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+
+using Dictionary_type =
+    System.Collections.Generic.Dictionary<string,
+    NullPointersEtc.NotesJournalApp.NotesBackEnd.ConnectionConfig>;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -22,25 +25,30 @@ public class NotesBackEnd
 {
     private static void Main(string[] args)
     {
-        const string dbSqlServer = "--db=SqlServer",
-            dbSQLite = "--db=SQLite";
+        WebApplicationBuilder builder =
+            WebApplication.CreateBuilder(args);
 
-        bool useSqlServer = args.Any(arg => arg.Equals(
-                dbSqlServer, StringComparison.OrdinalIgnoreCase)),
-            useSQLite = args.Any(arg => arg.Equals(
-                dbSQLite, StringComparison.OrdinalIgnoreCase));
+        Dictionary_type? allConnections =
+            builder.Configuration.GetSection("Database")
+                .Get<Dictionary_type>();
 
-        if (!useSqlServer && !useSQLite
-            || useSqlServer && useSQLite)
+        if (allConnections is null || allConnections.Count == 0)
         {
-            Console.WriteLine("NotesBackEnd: must use one of " +
-                dbSqlServer + " or " + dbSQLite);
-
+            Console.WriteLine("Database is absent or empty in appsettings.json.");
             return;
         }
 
-        WebApplicationBuilder builder =
-            WebApplication.CreateBuilder(args);
+        ConnectionConfig? connectionConfig = null;
+
+        string? matchingArg = args.FirstOrDefault(
+            arg => allConnections.TryGetValue(arg, out connectionConfig));
+
+        if (connectionConfig is null
+            && !allConnections.TryGetValue("default", out connectionConfig))
+        {
+            Console.WriteLine("Database configuration is not configured correctly");
+            return;
+        }
 
         builder.Services.AddScoped<INoteHandler, NoteHandler>();
         builder.Services.AddScoped<IUserHandler, UserHandler>();
@@ -49,17 +57,20 @@ public class NotesBackEnd
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        string conn = builder.Configuration.GetConnectionString("NotesDb")
-            ?? throw new System.InvalidOperationException(
-                "Connection string \"NotesDb\" not found");
-
-        if (useSqlServer)
+        if (connectionConfig.IsSqlServer())
+        {
             builder.Services.AddDbContext<NotesDbContextForSqlServer>(
-                optionsBuilder => optionsBuilder.UseSqlServer(conn));
-
-        if (useSQLite)
+                options => options.UseSqlServer(connectionConfig.ConnectionString));
+        }
+        else if (connectionConfig.IsSqlite())
+        {
             builder.Services.AddDbContext<NotesDbContextForSqlite>(
-                optionsBuilder => optionsBuilder.UseSqlite(conn));
+                options => options.UseSqlite(connectionConfig.ConnectionString));
+        }
+        else
+        {
+            Console.WriteLine("Unknown database type: " + connectionConfig.Type);
+        }
 
         WebApplication app = builder.Build();
         NotesRestAPI.MapEndpoints(app);
@@ -74,5 +85,77 @@ public class NotesBackEnd
         app.Run();
     }
 }
+
+public sealed class NotesBackEndOptions
+{
+    public NotesBackEndOptions()
+    {
+        databases = new(System.StringComparer.OrdinalIgnoreCase);
+    }
+
+    public Dictionary_type Database
+    {
+        get => databases;
+        set => databases = value;
+    }
+
+    private Dictionary_type databases;
+}
+
+public sealed class ConnectionConfig
+{
+    public ConnectionConfig()
+    {
+        isSqlServer = false;
+        isSqlite = false;
+        connString = null;
+    }
+
+    public string Type
+    {
+        get
+        {
+            if (isSqlServer)
+                return "SqlServer";
+            else if (isSqlite)
+                return "Sqlite";
+            else
+                throw new System.InvalidOperationException("Type not set");
+        }
+
+        set
+        {
+            if (value == "SqlServer")
+            {
+                isSqlServer = true;
+                isSqlite = false;
+            }
+            else if (value == "Sqlite")
+            {
+                isSqlServer = false;
+                isSqlite = true;
+            }
+            else
+            {
+                throw new System.ArgumentException("Invalid Type");
+            }
+        }
+    }
+
+    public string ConnectionString
+    {
+        get => connString ??
+            throw new System.InvalidOperationException("ConnectionString not set");
+
+        set => connString = value;
+    }
+
+    public bool IsSqlServer() => isSqlServer;
+    public bool IsSqlite() => isSqlite;
+
+    private bool isSqlServer, isSqlite;
+    private string? connString;
+}
+
 
 #endregion "NotesBackEnd/NotesBackEnd.cs"
