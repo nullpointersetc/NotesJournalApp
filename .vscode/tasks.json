@@ -68,6 +68,22 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build NotesBackEnd_IntegrationTests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "NotesBackEnd_Int\\NotesBackEnd_IntegrationTests.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Run NotesBackEnd",
             "command": "dotnet",
             "type": "shell",
@@ -93,7 +109,7 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "group": "none",
+            "group": "test",
             "presentation": {
                 "reveal": "silent"
             },
@@ -109,7 +125,7 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "group": "none",
+            "group": "test",
             "presentation": {
                 "reveal": "silent"
             },
@@ -125,7 +141,23 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "group": "none",
+            "group": "test",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesBackEnd_IntegrationTests",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "test",
+                "NotesBackEnd_Int\\NotesBackEnd_IntegrationTests.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "test",
             "presentation": {
                 "reveal": "silent"
             },
