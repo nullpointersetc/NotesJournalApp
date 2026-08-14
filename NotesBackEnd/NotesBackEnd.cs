@@ -59,13 +59,15 @@ public class NotesBackEnd
 
         if (connectionConfig.IsSqlServer())
         {
-            builder.Services.AddDbContext<NotesDbContextForSqlServer>(
-                options => options.UseSqlServer(connectionConfig.ConnectionString));
+            builder.Services.AddDbContext<NotesDbContext>(
+                options => options.UseSqlServer(connectionConfig.ConnectionString))
+                    .AddSingleton(MoreOptionsForNotesDbContext.ForSqlServer());
         }
         else if (connectionConfig.IsSqlite())
         {
-            builder.Services.AddDbContext<NotesDbContextForSqlite>(
-                options => options.UseSqlite(connectionConfig.ConnectionString));
+            builder.Services.AddDbContext<NotesDbContext>(
+                options => options.UseSqlite(connectionConfig.ConnectionString))
+                    .AddSingleton(MoreOptionsForNotesDbContext.ForSqlite());
         }
         else
         {

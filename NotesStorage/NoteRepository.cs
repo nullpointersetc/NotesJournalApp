@@ -25,13 +25,7 @@ namespace NullPointersEtc.NotesJournalApp.NotesStorage;
 
 public sealed class NoteRepository : INoteRepository
 {
-    public NoteRepository(NotesDbContextForSqlite db)
-    {
-        myDB = db;
-    }
-
-
-    public NoteRepository(NotesDbContextForSqlServer db)
+    public NoteRepository(NotesDbContext db)
     {
         myDB = db;
     }

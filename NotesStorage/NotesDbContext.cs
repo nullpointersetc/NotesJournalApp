@@ -20,17 +20,23 @@ using RelationalPropertyBuilderExtensions =
 
 using RelationalEntityTypeBuilderExtensions =
     Microsoft.EntityFrameworkCore.RelationalEntityTypeBuilderExtensions;
+using Microsoft.EntityFrameworkCore;
 
 #endregion
 #endregion
 
 namespace NullPointersEtc.NotesJournalApp.NotesStorage;
 
-public abstract class NotesDbContext : DbContext
+public sealed class NotesDbContext : DbContext
 {
     public NotesDbContext(
-        Microsoft.EntityFrameworkCore.DbContextOptions options)
-        : base(options) { }
+        Microsoft.EntityFrameworkCore.DbContextOptions options,
+        MoreOptionsForNotesDbContext moreOptions)
+        : base(options)
+    {
+        privateOptions = moreOptions;
+    }
+
 
     public Microsoft.EntityFrameworkCore.DbSet<Note>
         Notes
@@ -47,67 +53,54 @@ public abstract class NotesDbContext : DbContext
 
         builder.Entity<Note>(entity =>
         {
+            entity.ToTable(name: "NOTES");
             entity.HasKey(note => note.NoteID);
 
-            RelationalPropertyBuilderExtensions.UseCollation(
-                entity.Property(note => note.Title)  .IsRequired(),
-                collation: CaseInsensitiveCollation);
+            entity.Property(note => note.Title).IsRequired()
+                .UseCollation(privateOptions.CaseInsensitiveCollation);
 
-            entity.Property(note => note.Body)
-                .IsRequired();
+            entity.Property(note => note.Body).IsRequired();
         });
-
-        RelationalEntityTypeBuilderExtensions.ToTable(
-            builder.Entity<Note>(), name: "NOTES");
 
         builder.Entity<User>(entity =>
         {
+            entity.ToTable(name: "USERS");
             entity.HasKey(user => user.UserID);
 
-            RelationalPropertyBuilderExtensions.UseCollation(
-                entity.Property(user => user.UserName).IsRequired(),
-                collation: CaseInsensitiveCollation);
+            entity.Property(user => user.UserName).IsRequired()
+                .UseCollation(privateOptions.CaseInsensitiveCollation);
 
-            RelationalPropertyBuilderExtensions.UseCollation(
-                entity.Property(user => user.DisplayName).IsRequired(),
-                collation: CaseInsensitiveCollation);
+            entity.Property(user => user.DisplayName).IsRequired()
+                .UseCollation(privateOptions.CaseInsensitiveCollation);
 
-            entity.Property(user => user.EMailAddress)
-                .IsRequired();
+            entity.Property(user => user.EMailAddress).IsRequired();
 
             entity.HasIndex(user => user.UserName).IsUnique();
             entity.HasIndex(user => user.DisplayName).IsUnique();
         });
-
-        RelationalEntityTypeBuilderExtensions.ToTable(
-            builder.Entity<User>(), name: "USERS");
     }
 
-    public abstract string CaseInsensitiveCollation { get; }
+    private readonly MoreOptionsForNotesDbContext privateOptions;
 }
 
-public class NotesDbContextForSqlite : NotesDbContext
+public sealed class MoreOptionsForNotesDbContext
 {
-    public NotesDbContextForSqlite(
-        Microsoft.EntityFrameworkCore.DbContextOptions<
-            NotesDbContextForSqlite> options)
-        : base(options) { }
+    public static MoreOptionsForNotesDbContext ForSqlServer()
+        => new(caseInsensitiveCollation: "SQL_Latin1_General_CP1_CI_AS");
 
-    public override string CaseInsensitiveCollation
-    { get => "NOCASE"; }
-}
+    public static MoreOptionsForNotesDbContext ForSqlite()
+        => new(caseInsensitiveCollation: "NOCASE");
 
-public class NotesDbContextForSqlServer : NotesDbContext
-{
-    public NotesDbContextForSqlServer(
-        Microsoft.EntityFrameworkCore.DbContextOptions<
-            NotesDbContextForSqlServer> options)
-        : base(options)
+    public MoreOptionsForNotesDbContext(string caseInsensitiveCollation)
     {
+        collation = caseInsensitiveCollation;
     }
 
-    public override string CaseInsensitiveCollation
-    { get => "SQL_Latin1_General_CP1_CI_AS"; }
-}
+    public string CaseInsensitiveCollation
+    {
+        get => collation;
+    }
 
+    private readonly string collation;
+}
 #endregion "NotesStorage/NotesDbContext.cs"
