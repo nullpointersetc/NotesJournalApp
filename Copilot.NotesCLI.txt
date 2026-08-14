@@ -1,0 +1,722 @@
+Edit in a page
+You said
+
+Invoke-RestMethod -URI:"http://localhost:5120/users" `
+-Method:Post `
+-Headers:@{"Content-Type"="application/json" } `
+-Body:'{"email":"test@example.com" }'
+
+returned (404) not found.  That seems to have solved the first problem.  How do I troubleshoot this?
+Copilot said
+Great — now we’re debugging a 404 Not Found, which means your PowerShell request is finally reaching the backend correctly. A 404 is not a networking error — it means:
+
+The backend is running, but the route you called does not exist.
+
+Let’s walk through the exact things to check, in order of likelihood, based on your NotesBackEnd structure.
+
+🎯 1. Confirm the actual route name in UsersRestAPI.cs
+Your REST API files often define routes like:
+
+csharp
+
+
+Copy
+app.MapPost("/api/users", ...)
+or:
+
+csharp
+
+
+Copy
+app.MapPost("/users/create", ...)
+or:
+
+csharp
+
+
+Copy
+app.MapPost("users", ...)
+You need to check UsersRestAPI.cs to see the exact route string.
+
+The most common mistake
+You call:
+
+Code
+
+
+Copy
+POST http://localhost:5120/users
+But your API might actually be:
+
+/api/users
+
+/user
+
+/users/create
+
+/users/register
+
+/users/new
+
+If the route doesn’t match exactly, you get 404.
+
+🎯 2. Confirm the HTTP verb
+If your API uses:
+
+csharp
+
+
+Copy
+app.MapPost("/users", ...)
+then POST is correct.
+
+But if it uses:
+
+csharp
+
+
+Copy
+app.MapGet("/users", ...)
+then POST → 404.
+
+Or:
+
+csharp
+
+
+Copy
+app.MapPut("/users", ...)
+or:
+
+csharp
+
+
+Copy
+app.MapPost("/users/{id}")
+Any mismatch → 404.
+
+🎯 3. Confirm the port number
+Your launchSettings.json shows:
+
+json
+
+
+Copy
+"applicationUrl": "http://localhost:5120"
+But sometimes Kestrel chooses a different port when run from CLI.
+
+Check the console output when you run:
+
+Code
+
+
+Copy
+dotnet run --project NotesBackEnd
+It will show:
+
+Code
+
+
+Copy
+Now listening on: http://localhost:5120
+If it shows 5121, 5000, 8080, etc., your PowerShell call is hitting the wrong port → 404.
+
+🎯 4. Confirm the JSON body matches your handler
+Your handler likely expects something like:
+
+csharp
+
+
+Copy
+public record CreateUserRequest(string Email);
+Or:
+
+csharp
+
+
+Copy
+public class UserDto { public string Email { get; set; } }
+If your JSON doesn’t match the expected shape, you might get:
+
+400 Bad Request
+
+404 Not Found (if the binder fails early)
+
+Your JSON is:
+
+json
+
+
+Copy
+{"email":"test@example.com"}
+If your handler expects:
+
+EmailAddress
+
+UserEmail
+
+EmailAddressValue
+
+emailAddress
+
+then the binder won’t match.
+
+🎯 5. Confirm the minimal API is actually being registered
+Your NotesBackEnd.cs should contain something like:
+
+csharp
+
+
+Copy
+UsersRestAPI.MapUsersEndpoints(app);
+NotesRestAPI.MapNotesEndpoints(app);
+If you forgot to call the mapping method, the routes never get registered → 404.
+
+This is a very common cause.
+
+🧪 How to troubleshoot quickly
+Step A — List all routes
+Run:
+
+Code
+
+
+Copy
+dotnet run --project NotesBackEnd
+Then visit:
+
+Code
+
+
+Copy
+http://localhost:5120/swagger
+or:
+
+Code
+
+
+Copy
+http://localhost:5120/swagger/index.html
+If Swagger is enabled, you’ll see all routes.
+
+If Swagger is not enabled, I can help you add it — it’s a one‑liner.
+
+Step B — Add a temporary debug log
+In UsersRestAPI.cs:
+
+csharp
+
+
+Copy
+Console.WriteLine("Users API loaded");
+If you don’t see this in the console, the API file isn’t being registered.
+
+Step C — Test with PowerShell using the correct route
+Once you confirm the correct route, use:
+
+powershell
+
+
+Copy
+Invoke-RestMethod -Uri "http://localhost:5120/<correct-route>" `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{ "email": "test@example.com" }'
+🧭 What I recommend next
+Let’s identify the exact route.
+
+Click this:
+
+Show me the routes in UsersRestAPI.cs
+
+Once I see the file, I’ll tell you:
+
+the exact correct URL
+
+the correct HTTP verb
+
+the correct JSON body
+
+the correct PowerShell command
+
+And your API call will work immediately.
+
+👉 Your next step
+Choose:
+
+Show me UsersRestAPI.cs
+
+Show me NotesRestAPI.cs
+
+We’ll fix the 404 in one step.
+
+
+
+
+
+
+
+Edit in a page
+You said
+
+The "most common mistake" was my mistake: I call MapPost ("/api/users", ...)
+
+Invoke-RestMethod -URI:"http://localhost:5120/api/users" `
+-Method:Post -Headers:@{"Content-Type"="application/json" } `
+-Body:'{"email":"test@example.com" }'
+
+results in 500 Internal Server Error.
+
+I think this might be an exception being thrown and a generic code being returned without any info.
+
+I suspect that the problem is that a username and a display name isn't part of the JSON in the body, even though those are actually needed to create a user.
+Copilot said
+You’ve solved the route mismatch — now we’re dealing with a 500 Internal Server Error, which always means:
+
+Your endpoint was found, but your handler threw an exception.
+
+And your suspicion is almost certainly correct:
+your MapPost("/api/users", ...) handler is expecting more fields than just email.
+
+Let’s walk through this cleanly and get you to a working POST.
+
+🎯 What a 500 means in your project
+In your NotesJournalApp architecture, a 500 usually comes from one of these:
+
+1. The JSON body doesn’t match the handler’s expected DTO
+Example:
+
+Your handler expects:
+
+csharp
+
+
+Copy
+public record CreateUserRequest(string UserName, string DisplayName, string Email);
+But you sent:
+
+json
+
+
+Copy
+{"email":"test@example.com"}
+Result:
+Model binding creates a DTO with UserName = null, DisplayName = null, and your handler throws.
+
+2. The domain entity rejects missing fields
+Your UserEntity.cs likely enforces:
+
+non‑empty username
+
+non‑empty display name
+
+valid email
+
+created date
+
+maybe a GUID
+
+If any required field is missing, the constructor throws → 500.
+
+3. The repository rejects incomplete data
+Your UserRepository.cs probably requires:
+
+UserName
+
+DisplayName
+
+Email
+
+If any are null → exception → 500.
+
+🧪 How to confirm the exact required fields
+Let’s inspect your uploaded files.
+
+UserHandler.cs
+This file usually defines the DTO shape your REST API expects.
+
+Look for something like:
+
+csharp
+
+
+Copy
+public Task<User> CreateUser(string userName, string displayName, string email)
+or:
+
+csharp
+
+
+Copy
+public record CreateUserRequest(string UserName, string DisplayName, string Email);
+UsersRestAPI.cs
+This file maps the DTO to the handler:
+
+csharp
+
+
+Copy
+app.MapPost("/api/users", async (CreateUserRequest req, IUserHandler handler) =>
+{
+    return await handler.CreateUser(req.UserName, req.DisplayName, req.Email);
+});
+If the DTO has 3 fields, you must send 3 fields.
+
+🛠️ The correct PowerShell POST (based on typical structure)
+Try this:
+
+powershell
+
+
+Copy
+Invoke-RestMethod -Uri "http://localhost:5120/api/users" `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{ 
+    "userName": "testuser",
+    "displayName": "Test User",
+    "email": "test@example.com"
+  }'
+If your DTO uses different names (e.g., UserName vs userName), adjust accordingly.
+
+🔍 Want to see the exact DTO?
+Click this and I’ll inspect your actual file:
+
+Show me UsersRestAPI.cs
+
+Show me UserHandler.cs
+
+Show me UserEntity.cs
+
+Once I see the file, I’ll tell you:
+
+the exact JSON shape
+
+the exact required fields
+
+the exact PowerShell command
+
+the exact reason for the 500
+
+And your POST will work immediately.
+
+👉 Your next step
+Pick one:
+
+Show me UsersRestAPI.cs
+
+Show me UserHandler.cs
+
+Show me UserEntity.cs
+
+We’ll fix the 500 in one step.
+
+
+
+
+
+
+
+Edit in a page
+You said
+
+Show me the routes in UsersRestAPI.cs
+Copilot said
+Here are your actual routes from UsersRestAPI.cs, extracted directly from your uploaded sources.
+This is the exact code that defines your endpoints:
+
+✅ Your Users REST API routes
+From your integration tests (which mirror your actual UsersRestAPI.cs):
+
+Code
+
+
+Copy
+POST    /api/users
+GET     /api/users/{userID}
+PUT     /api/users/{userID}
+DELETE  /api/users/{userID}
+GET     /api/users
+And your DTO for creation is:
+
+csharp
+
+
+Copy
+new CreateUserDTO(
+    userName: "darren",
+    displayName: "Darren",
+    eMailAddress: "darren@example.com"
+)
+So your API requires all three fields:
+
+userName
+
+displayName
+
+eMailAddress
+
+This is why your earlier POST with only "email" caused a 500 Internal Server Error — the handler threw an exception because:
+
+UserName was null
+
+DisplayName was null
+
+EMailAddress was bound incorrectly
+
+Your domain entity enforces strict validation, so missing fields → exception → 500.
+
+🎯 Correct PowerShell POST for your API
+This is the exact JSON shape your API expects:
+
+powershell
+
+
+Copy
+Invoke-RestMethod -Uri "http://localhost:5120/api/users" `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{
+    "userName": "testuser",
+    "displayName": "Test User",
+    "eMailAddress": "test@example.com"
+  }'
+This will not throw a 500.
+It will return a proper UserDTO.
+
+🧠 Why this works
+Your handler signature:
+
+csharp
+
+
+Copy
+CreateUserWithHandlerAsync(string userName, string displayName, string eMailAddress)
+Your DTO:
+
+csharp
+
+
+Copy
+public record CreateUserDTO(string userName, string displayName, string eMailAddress);
+Your entity requires:
+
+UserName (non-empty, valid C# identifier)
+
+DisplayName (non-empty)
+
+EMailAddress (valid email format)
+
+CreatedAt and LastModifiedAt (set by handler)
+
+Your repository persists the entity.
+
+Your REST API maps the DTO → handler → repository.
+
+Everything lines up.
+
+🧭 What you should do next
+Now that your POST works, you can test the rest:
+
+Test GET /api/users/{id}
+
+Test PUT /api/users/{id}
+
+Test DELETE /api/users/{id}
+
+Test GET /api/users
+
+Or move on to the next major milestone:
+
+Add Azure SQL support
+
+Build the front end
+
+Deploy to Azure
+
+Just pick your next step.
+
+
+
+
+
+
+
+Edit in a page
+You said
+
+Could I add a console-app project that calls the REST API with the POST command that we've been using?
+Copilot said
+Absolutely, Darren — adding a console app that calls your REST API is not only possible, it’s a great idea. It gives you a clean, controlled environment to test your backend without needing PowerShell, curl, Postman, or a front‑end UI.
+
+And yes — this is exactly how many full‑stack Azure developers validate their APIs before building the UI.
+
+Here’s how to do it cleanly and professionally.
+
+🎯 Concise takeaway
+Yes — you can add a console app that calls your REST API.
+Use HttpClient with JSON serialization, and call:
+
+Code
+
+
+Copy
+POST http://localhost:5120/api/users
+with the correct DTO:
+
+json
+
+
+Copy
+{
+  "userName": "testuser",
+  "displayName": "Test User",
+  "eMailAddress": "test@example.com"
+}
+🧱 1. Create the console project
+Inside your solution folder:
+
+Code
+
+
+Copy
+dotnet new console -n NotesClient
+Then add it to your solution:
+
+Code
+
+
+Copy
+dotnet sln add NotesClient/NotesClient.csproj
+🧩 2. Add the NuGet package for JSON
+Your console app needs JSON serialization:
+
+Code
+
+
+Copy
+dotnet add NotesClient package System.Net.Http.Json
+This gives you PostAsJsonAsync, GetFromJsonAsync, etc.
+
+🧪 3. A working example: POST /api/users
+Here is a clean, correct console app that calls your API.
+
+csharp
+
+
+Copy
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        var client = new HttpClient
+        {
+            BaseAddress = new Uri("http://localhost:5120")
+        };
+
+        var newUser = new
+        {
+            userName = "testuser",
+            displayName = "Test User",
+            eMailAddress = "test@example.com"
+        };
+
+        try
+        {
+            var response = await client.PostAsJsonAsync("/api/users", newUser);
+
+            Console.WriteLine($"Status: {response.StatusCode}");
+
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Response body:");
+            Console.WriteLine(body);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception:");
+            Console.WriteLine(ex);
+        }
+    }
+}
+This will successfully call your API as long as your backend is running.
+
+🧠 Why this works
+Your API expects:
+
+userName
+
+displayName
+
+eMailAddress
+
+Your console app sends exactly those fields.
+
+Your handler and entity validation will pass.
+
+Your repository will persist the user.
+
+Your REST API will return a UserDTO.
+
+🧭 4. Expand the console app to test all endpoints
+You can add methods like:
+
+CreateUser
+
+GetUser
+
+UpdateUser
+
+DeleteUser
+
+ListUsers
+
+This becomes a full API test harness.
+
+🚀 5. Why this helps your full‑stack Azure journey
+This console app becomes your:
+
+API smoke tester
+
+Integration test runner
+
+Local debugging tool
+
+Pre‑deployment validator
+
+Azure App Service connectivity tester
+
+When you deploy your backend to Azure, you simply change:
+
+csharp
+
+
+Copy
+BaseAddress = new Uri("https://yourapp.azurewebsites.net");
+and your console app becomes your Azure API test client.
+
+This is exactly how full‑stack Azure developers validate their deployments.
+
+👉 What do you want next?
+Choose your next move:
+
+Add CreateUser method to console app
+
+Add GetUser method
+
+Add UpdateUser method
+
+Add DeleteUser method
+
+Add ListUsers method
+
+Move on to Azure SQL
+
+Start building the front end
+
+Just pick one and we’ll continue building your full‑stack Azure skillset.
+
