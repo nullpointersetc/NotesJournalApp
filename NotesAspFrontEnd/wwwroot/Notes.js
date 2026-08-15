@@ -1,5 +1,22 @@
+async function login() {
+    const response = await fatch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userName: 'darren', password: 'password' })
+    });
+
+    const data = await response.json();
+    localStorage.setItem('token', data.token);
+}
+
+
 async function loadNotes() {
-    const response = await fetch('https://localhost:5120/api/notes');
+    const token = localStorage.getItem('token');
+
+    const response = await fetch('https://localhost:5120/api/notes', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
     const notes = await response.json();
 
     const list = document.getElementById('notes');

@@ -35,6 +35,7 @@ public static class NotesRestAPI
     public static void MapEndpoints(WebApplication app)
     {
         app.MapPost(CreateNoteURI, HttpPostCreateNoteAsync)
+            .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Create a new note")
             .WithDescription("Creates a new note using the provided title and body.")
@@ -42,6 +43,7 @@ public static class NotesRestAPI
             .Produces<NoteDTO>(StatusCodes.Status200OK);
 
         app.MapGet(GetNoteURI, HttpGetNoteByNoteIdAsync)
+            .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Get a note by ID")
             .WithDescription("Retrieves a note using its GUID identifier.")
@@ -49,6 +51,7 @@ public static class NotesRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapPut(GetNoteURI, HttpPutUpdateNoteByNoteIdAsync)
+            .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Update a note")
             .WithDescription("Updates the title and body of an existing note.")
@@ -57,6 +60,7 @@ public static class NotesRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapDelete(GetNoteURI, HttpDeleteNoteByNoteIdAsync)
+            .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Delete a note")
             .WithDescription("Deletes a note using its GUID identifier.")
@@ -64,6 +68,7 @@ public static class NotesRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapGet(SearchNotesURI, HttpGetNotesFromSearchAsync)
+            .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Search notes")
             .WithDescription("Searches notes by title or body text.")

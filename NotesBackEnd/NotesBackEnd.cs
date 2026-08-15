@@ -1,6 +1,6 @@
 #region "NotesBackEnd/NotesBackEnd.cs"
 
-#pragma warning disable IDE0001, IDE0002, IDE0130, IDE0240
+#pragma warning disable IDE0001, IDE0002, IDE0240
 #nullable enable
 
 using NullPointersEtc.NotesJournalApp.NotesHandlers;
@@ -12,7 +12,15 @@ using Microsoft.Extensions.Hosting;
 using Console = System.Console;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using SymmetricSecurityKey = Microsoft.IdentityModel.Tokens.SymmetricSecurityKey;
+using Encoding = System.Text.Encoding;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using DateTime = System.DateTime;
+using Microsoft.AspNetCore.Http;
 
+#pragma warning disable IDE0130
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
 public class NotesBackEnd
@@ -51,6 +59,19 @@ public class NotesBackEnd
         Console.WriteLine("Connection selected is " + connectionType +
             " with string: " + connectionString);
 
+        builder.Services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
+                options.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes("super-secret-key-12345"))
+                });
+
+        builder.Services.AddAuthorization();
+
         builder.Services.AddScoped<INoteHandler, NoteHandler>();
         builder.Services.AddScoped<IUserHandler, UserHandler>();
         builder.Services.AddScoped<INoteRepository, NoteRepository>();
@@ -71,8 +92,37 @@ public class NotesBackEnd
                     options => options.UseSqlite(connectionString));
 
         WebApplication app = builder.Build();
+        app.UseAuthentication();
+        app.UseAuthorization();
         NotesRestAPI.MapEndpoints(app);
         UsersRestAPI.MapEndpoints(app);
+
+        app.MapPost("/auth/login", (LoginRequest login) =>
+        {
+            if (login.UserName == "darren" && login.Password == "password")
+            {
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.Name, login.UserName)
+                };
+
+                var key = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes("super-secret-key-12345"));
+
+                var creds = new SigningCredentials(
+                    key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(claims: claims,
+                    expires: DateTime.UtcNow.AddHours(1),
+                    signingCredentials: creds);
+
+                return Results.Ok(new { token=new JwtSecurityTokenHandler().WriteToken(token)});
+            }
+            else
+            {
+                return Results.Unauthorized();
+            }
+        });
 
         using (IServiceScope scope = app.Services.CreateScope())
         {
@@ -95,4 +145,11 @@ public class NotesBackEnd
         app.Run();
     }
 }
+
+
+public class LoginRequest
+{
+    public string? UserName, Password;
+}
+
 #endregion "NotesBackEnd/NotesBackEnd.cs"

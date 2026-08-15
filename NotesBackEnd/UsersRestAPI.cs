@@ -28,6 +28,7 @@ public static class UsersRestAPI
         Microsoft.AspNetCore.Builder.WebApplication app)
     {
         app.MapPost(GetOrCreateUserURI, HttpPostCreateUserAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Create a new user")
             .WithDescription("Creates a new user with username, display name, and email address.")
@@ -35,12 +36,14 @@ public static class UsersRestAPI
             .Produces<UserDTO>(StatusCodes.Status200OK);
 
         app.MapGet(GetOrCreateUserURI, HttpGetAllUsersAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Get all users")
             .WithDescription("Returns all users in the system.")
             .Produces<System.Collections.Generic.IEnumerable<UserDTO>>(StatusCodes.Status200OK);
 
         app.MapGet(GetOrUpdateUserURI, HttpGetUserByUserIdAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Get a user by ID")
             .WithDescription("Retrieves a user using their GUID identifier.")
@@ -48,6 +51,7 @@ public static class UsersRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapPut(GetOrUpdateUserURI, HttpPutUpdateUserByUserIdAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Update a user")
             .WithDescription("Updates the display name and email address of an existing user.")
@@ -56,6 +60,7 @@ public static class UsersRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapDelete(GetOrUpdateUserURI, HttpDeleteUserByUserIdAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Delete a user")
             .WithDescription("Deletes a user using its GUID identifier.")
@@ -63,6 +68,7 @@ public static class UsersRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapGet(GetUserByNameURI, HttpGetUserByUserNameAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Get a user by User Name")
             .WithDescription("Retrieves a user using its user name.")
@@ -70,6 +76,7 @@ public static class UsersRestAPI
             .Produces(StatusCodes.Status404NotFound);
 
         app.MapGet(GetUserByDisplayName, HttpGetUserByDisplayNameAsync)
+            .RequireAuthorization()
             .WithTags("Users")
             .WithSummary("Get a user by Display Name")
             .WithDescription("Retrieves a user using its display name.")
