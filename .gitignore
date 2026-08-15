@@ -1,6 +1,9 @@
 /.vs
 /NotesBackEnd/bin
 /NotesBackEnd/NotesBackEnd.csproj.user
+/NotesBackEnd/NotesJournalApp.db
+/NotesBackEnd/NotesJournalApp.db-shm
+/NotesBackEnd/NotesJournalApp.db-wal
 /NotesBackEnd/obj
 /NotesCLI/bin
 /NotesCLI/obj

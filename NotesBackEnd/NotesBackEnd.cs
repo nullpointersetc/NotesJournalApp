@@ -10,14 +10,8 @@ using NullPointersEtc.NotesJournalApp.UserEntity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Console = System.Console;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-
-using Dictionary_type =
-    System.Collections.Generic.Dictionary<string,
-    NullPointersEtc.NotesJournalApp.NotesBackEnd.ConnectionConfig>;
 
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
 
@@ -28,51 +22,34 @@ public class NotesBackEnd
         WebApplicationBuilder builder =
             WebApplication.CreateBuilder(args);
 
-        Dictionary_type? allConnections =
-            builder.Configuration.GetSection("Database")
-                .Get<Dictionary_type>();
+        Console.WriteLine(builder.Environment.ApplicationName +
+            " is running in environment \"" +
+            builder.Environment.EnvironmentName + "\"");
 
-        if (allConnections is null || allConnections.Count == 0)
-        {
-            Console.WriteLine("Database is absent or empty in appsettings.json.");
-            return;
-        }
+        Console.WriteLine("To change this, set the environment " +
+            "variable ASPNETCORE_ENVIRONMENT={your-environment-name}" +
+            " before running " + builder.Environment.ApplicationName);
 
-        ConnectionConfig? connectionConfig = null;
+        Console.WriteLine("or use dotnet run --project:NotesBackEnd " +
+            "--environment {your-environment-name}");
 
-        string? matchingArg = args.FirstOrDefault(
-            arg => allConnections.TryGetValue(arg, out connectionConfig));
+        string connectionType = builder.Configuration["ConnectionType"]
+            ?? throw new System.Exception("ConnectionType not configured.");
 
-        if (connectionConfig is not null)
-        {
-            if (matchingArg is not null)
-            {
-                Console.Write("Configuration selected: ");
-                Console.WriteLine(matchingArg);
-                Console.Write("Type: ");
-                Console.WriteLine(connectionConfig.Type);
-                Console.Write("Connection String: ");
-                Console.WriteLine(connectionConfig.ConnectionString);
-            }
-            else
-            {
-                Console.Error.WriteLine("Internal error: connection name has no config");
-                return;
-            }
-        }
-        else if (allConnections.TryGetValue("default", out connectionConfig))
-        {
-            Console.WriteLine("Using default configuration.");
-            Console.Write("Type: ");
-            Console.WriteLine(connectionConfig.Type);
-            Console.Write("Connection String: ");
-            Console.WriteLine(connectionConfig.ConnectionString);
-        }
-        else
-        {
-            Console.Error.WriteLine("No configuration was selected and no default was configured.");
-            return;
-        }
+        bool bUseSqlServer = connectionType == "SqlServer",
+            bUseSqlite = connectionType == "Sqlite";
+
+        if (!bUseSqlServer && !bUseSqlite)
+            throw new System.Exception("ConnectionType must be SqlServer or Sqlite");
+
+        string connectionString = builder.Configuration["ConnectionString"]
+            ?? throw new System.Exception("ConnectionString not configured.");
+
+        if (string.IsNullOrEmpty(connectionString))
+            throw new System.Exception("ConnectionString is empty");
+
+        Console.WriteLine("Connection selected is " + connectionType +
+            " with string: " + connectionString);
 
         builder.Services.AddScoped<INoteHandler, NoteHandler>();
         builder.Services.AddScoped<IUserHandler, UserHandler>();
@@ -81,22 +58,17 @@ public class NotesBackEnd
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        if (connectionConfig.IsSqlServer())
-        {
-            builder.Services.AddDbContext<NotesDbContext>(
-                options => options.UseSqlServer(connectionConfig.ConnectionString))
-                    .AddSingleton(MoreOptionsForNotesDbContext.ForSqlServer());
-        }
-        else if (connectionConfig.IsSqlite())
-        {
-            builder.Services.AddDbContext<NotesDbContext>(
-                options => options.UseSqlite(connectionConfig.ConnectionString))
-                    .AddSingleton(MoreOptionsForNotesDbContext.ForSqlite());
-        }
-        else
-        {
-            Console.WriteLine("Unknown database type: " + connectionConfig.Type);
-        }
+        if (bUseSqlServer)
+            builder.Services.AddSingleton(
+                    MoreOptionsForNotesDbContext.ForSqlServer())
+                .AddDbContext<NotesDbContext>(
+                    options => options.UseSqlServer(connectionString));
+
+        if (bUseSqlite)
+            builder.Services.AddSingleton(
+                    MoreOptionsForNotesDbContext.ForSqlite())
+                .AddDbContext<NotesDbContext>(
+                    options => options.UseSqlite(connectionString));
 
         WebApplication app = builder.Build();
         NotesRestAPI.MapEndpoints(app);
@@ -123,77 +95,4 @@ public class NotesBackEnd
         app.Run();
     }
 }
-
-public sealed class NotesBackEndOptions
-{
-    public NotesBackEndOptions()
-    {
-        databases = new(System.StringComparer.OrdinalIgnoreCase);
-    }
-
-    public Dictionary_type Database
-    {
-        get => databases;
-        set => databases = value;
-    }
-
-    private Dictionary_type databases;
-}
-
-public sealed class ConnectionConfig
-{
-    public ConnectionConfig()
-    {
-        isSqlServer = false;
-        isSqlite = false;
-        connString = null;
-    }
-
-    public string Type
-    {
-        get
-        {
-            if (isSqlServer)
-                return "SqlServer";
-            else if (isSqlite)
-                return "Sqlite";
-            else
-                throw new System.InvalidOperationException("Type not set");
-        }
-
-        set
-        {
-            if (value == "SqlServer")
-            {
-                isSqlServer = true;
-                isSqlite = false;
-            }
-            else if (value == "Sqlite")
-            {
-                isSqlServer = false;
-                isSqlite = true;
-            }
-            else
-            {
-                throw new System.ArgumentException("Invalid Type");
-            }
-        }
-    }
-
-    public string ConnectionString
-    {
-        get => connString ??
-            throw new System.InvalidOperationException("ConnectionString not set");
-
-        set => connString = value;
-    }
-
-    public bool IsSqlServer() => isSqlServer;
-    public bool IsSqlite() => isSqlite;
-
-    private bool isSqlServer, isSqlite;
-    private string? connString;
-}
-
-
 #endregion "NotesBackEnd/NotesBackEnd.cs"

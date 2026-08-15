@@ -100,12 +100,13 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Run NotesBackEnd",
+            "label": "Run NotesBackEnd in Development mode",
             "command": "dotnet",
             "type": "shell",
             "args": [
                 "run",
                 "--project:NotesBackEnd",
+                "--environment:Development",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
