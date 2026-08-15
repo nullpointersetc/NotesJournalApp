@@ -2,6 +2,7 @@
   <!-- Solution "NotesJournalApp.slnx" -->
   <Project Path="NotesBackEnd/NotesBackEnd.csproj" />
   <Project Path="NotesBackEnd_Int/NotesBackEnd_IntegrationTests.csproj" />
+  <Project Path="NotesCLI/NotesCLI.csproj" />
   <Project Path="NotesDomain/NotesDomain.csproj" />
   <Project Path="NotesDomain_Tests/NotesDomain_Tests.csproj" />
   <Project Path="NotesHandlers/NotesHandlers.csproj" />

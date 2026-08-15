@@ -20,6 +20,22 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build NotesCLI",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "NotesCLI",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Build NotesDomain_Tests",
             "command": "dotnet",
             "type": "shell",
@@ -90,6 +106,22 @@
             "args": [
                 "run",
                 "--project:NotesBackEnd",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesCLI",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run",
+                "--project:NotesCLI",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

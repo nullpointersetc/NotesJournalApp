@@ -2,6 +2,8 @@
 /NotesBackEnd/bin
 /NotesBackEnd/NotesBackEnd.csproj.user
 /NotesBackEnd/obj
+/NotesCLI/bin
+/NotesCLI/obj
 /NotesDomain/bin
 /NotesDomain/obj
 /NotesDomain_Tests/bin
