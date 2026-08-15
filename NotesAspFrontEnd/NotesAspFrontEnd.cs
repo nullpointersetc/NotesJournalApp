@@ -1,15 +1,18 @@
 #region "NotesAspFrontEnd.cs"
-using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
+using Microsoft.AspNetCore.Builder;
+
+#pragma warning disable IDE0130
 namespace NullPointersEtc.NotesJournalApp.NotesAspFrontEnd;
 public static class NotesAspFrontEnd
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-        var app = builder.Build();
+        WebApplicationBuilder builder =
+            WebApplication.CreateBuilder(args);
 
-        app.MapGet("/", () => "Hello World!");
-
+        WebApplication app = builder.Build();
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
         app.Run();
     }
 }
