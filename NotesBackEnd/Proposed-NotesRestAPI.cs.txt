@@ -1,0 +1,135 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using NullPointersEtc.NotesJournalApp.NotesHandlers;
+using NullPointersEtc.NotesJournalApp.NoteEntity;
+using System;
+
+namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
+
+public static class NotesRestAPI
+{
+    public static void MapEndpoints(WebApplication app)
+    {
+        // ---------------------------------------------------------
+        // CREATE NOTE
+        // ---------------------------------------------------------
+        app.MapPost("/api/notes", async (
+            INoteHandler handler,
+            CreateNoteDTO dto) =>
+        {
+            Note note = await handler.CreateNoteWithHandlerAsync(
+                dto.Title,
+                dto.Body);
+
+            return Results.Created($"/api/notes/{note.NoteID}",
+                new NoteDTO(
+                    note.NoteID,
+                    note.Title,
+                    note.Body,
+                    note.CreatedAt,
+                    note.LastModifiedAt));
+        });
+
+        // ---------------------------------------------------------
+        // GET NOTE BY ID
+        // ---------------------------------------------------------
+        app.MapGet("/api/notes/{noteID:guid}", async (
+            INoteHandler handler,
+            Guid noteID) =>
+        {
+            Note note = await handler.GetNoteFromNoteIdWithHandlerAsync(noteID);
+
+            return Results.Ok(new NoteDTO(
+                note.NoteID,
+                note.Title,
+                note.Body,
+                note.CreatedAt,
+                note.LastModifiedAt));
+        });
+
+        // ---------------------------------------------------------
+        // GET ALL NOTES
+        // ---------------------------------------------------------
+        app.MapGet("/api/notes", async (INoteHandler handler) =>
+        {
+            var notes = await handler.GetAllNotesWithHandlerAsync();
+
+            var dtos = notes.Select(n =>
+                new NoteDTO(
+                    n.NoteID,
+                    n.Title,
+                    n.Body,
+                    n.CreatedAt,
+                    n.LastModifiedAt));
+
+            return Results.Ok(dtos);
+        });
+
+        // ---------------------------------------------------------
+        // SEARCH NOTES
+        // ---------------------------------------------------------
+        app.MapGet("/api/notes/search", async (
+            INoteHandler handler,
+            string query) =>
+        {
+            var notes = await handler.SearchNotesWithHandlerAsync(query);
+
+            var dtos = notes.Select(n =>
+                new NoteDTO(
+                    n.NoteID,
+                    n.Title,
+                    n.Body,
+                    n.CreatedAt,
+                    n.LastModifiedAt));
+
+            return Results.Ok(dtos);
+        });
+
+        // ---------------------------------------------------------
+        // UPDATE NOTE
+        // ---------------------------------------------------------
+        app.MapPut("/api/notes/{noteID:guid}", async (
+            INoteHandler handler,
+            Guid noteID,
+            UpdateNoteDTO dto) =>
+        {
+            Note updated = await handler.UpdateNoteWithHandlerAsync(
+                noteID,
+                dto.Title,
+                dto.Body);
+
+            return Results.Ok(new NoteDTO(
+                updated.NoteID,
+                updated.Title,
+                updated.Body,
+                updated.CreatedAt,
+                updated.LastModifiedAt));
+        });
+
+        // ---------------------------------------------------------
+        // DELETE NOTE
+        // ---------------------------------------------------------
+        app.MapDelete("/api/notes/{noteID:guid}", async (
+            INoteHandler handler,
+            Guid noteID) =>
+        {
+            await handler.DeleteNoteWithHandlerAsync(noteID);
+            return Results.NoContent();
+        });
+    }
+}
+
+// ---------------------------------------------------------
+// DTOs
+// ---------------------------------------------------------
+
+public sealed record CreateNoteDTO(string Title, string Body);
+
+public sealed record UpdateNoteDTO(string Title, string Body);
+
+public sealed record NoteDTO(
+    Guid NoteID,
+    string Title,
+    string Body,
+    DateTime CreatedAt,
+    DateTime LastModifiedAt);
