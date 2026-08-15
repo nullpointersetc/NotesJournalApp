@@ -212,6 +212,21 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesAspFrontEnd",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run", "--project:NotesAspFrontEnd\\NotesAspFrontEnd.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
         }
     ]
 }
