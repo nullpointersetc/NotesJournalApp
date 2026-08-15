@@ -1,10 +1,14 @@
 /.vs
+/NotesAspFrontEnd/bin
+/NotesAspFrontEnd/obj
 /NotesBackEnd/bin
 /NotesBackEnd/NotesBackEnd.csproj.user
 /NotesBackEnd/NotesJournalApp.db
 /NotesBackEnd/NotesJournalApp.db-shm
 /NotesBackEnd/NotesJournalApp.db-wal
 /NotesBackEnd/obj
+/NotesBackEnd_Int/bin
+/NotesBackEnd_Int/obj
 /NotesCLI/bin
 /NotesCLI/obj
 /NotesDomain/bin
@@ -19,5 +23,3 @@
 /NotesHandlers_Tests/obj
 /NotesStorage/bin
 /NotesStorage/obj
-/NotesBackEnd_Int/bin
-/NotesBackEnd_Int/obj
