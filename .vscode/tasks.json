@@ -116,22 +116,6 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Run NotesCLI",
-            "command": "dotnet",
-            "type": "shell",
-            "args": [
-                "run",
-                "--project:NotesCLI",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "group": "none",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
             "label": "Run NotesDomain_Tests",
             "command": "dotnet",
             "type": "shell",
@@ -188,6 +172,39 @@
                 "NotesBackEnd_Int\\NotesBackEnd_IntegrationTests.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesCLI",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run",
+                "--project:NotesCLI\\NotesCLI.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run NotesCLI CreateUser s_holmes",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "run", "--project:NotesCLI\\NotesCLI.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "--",
+                "CreateUser", "s_holmes", "Sherlock Holmes", "s_holmes@example.net"
             ],
             "group": "test",
             "presentation": {

@@ -43,10 +43,34 @@ public class NotesBackEnd
         string? matchingArg = args.FirstOrDefault(
             arg => allConnections.TryGetValue(arg, out connectionConfig));
 
-        if (connectionConfig is null
-            && !allConnections.TryGetValue("default", out connectionConfig))
+        if (connectionConfig is not null)
         {
-            Console.WriteLine("Database configuration is not configured correctly");
+            if (matchingArg is not null)
+            {
+                Console.Write("Configuration selected: ");
+                Console.WriteLine(matchingArg);
+                Console.Write("Type: ");
+                Console.WriteLine(connectionConfig.Type);
+                Console.Write("Connection String: ");
+                Console.WriteLine(connectionConfig.ConnectionString);
+            }
+            else
+            {
+                Console.Error.WriteLine("Internal error: connection name has no config");
+                return;
+            }
+        }
+        else if (allConnections.TryGetValue("default", out connectionConfig))
+        {
+            Console.WriteLine("Using default configuration.");
+            Console.Write("Type: ");
+            Console.WriteLine(connectionConfig.Type);
+            Console.Write("Connection String: ");
+            Console.WriteLine(connectionConfig.ConnectionString);
+        }
+        else
+        {
+            Console.Error.WriteLine("No configuration was selected and no default was configured.");
             return;
         }
 
@@ -77,6 +101,18 @@ public class NotesBackEnd
         WebApplication app = builder.Build();
         NotesRestAPI.MapEndpoints(app);
         UsersRestAPI.MapEndpoints(app);
+
+        using (IServiceScope scope = app.Services.CreateScope())
+        {
+            using NotesDbContext db =
+                scope.ServiceProvider.GetRequiredService<NotesDbContext>();
+
+            if (db.Database.IsSqlite())
+                db.Database.EnsureCreated();
+
+            if (db.Database.IsSqlServer())
+                db.Database.Migrate();
+        }
 
         if (app.Environment.IsDevelopment())
         {
