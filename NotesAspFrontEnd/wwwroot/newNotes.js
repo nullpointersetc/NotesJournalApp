@@ -1,25 +1,22 @@
-async function login() {
-    const response = await fatch('/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userName: 'darren', password: 'password' })
-    });
-
-    const data = await response.json();
-    localStorage.setItem('token', data.token);
-}
-
-
 async function loadNotes() {
     const token = localStorage.getItem('token');
 
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
     const response = await fetch('https://localhost:5120/api/notes', {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    const notes = await response.json();
+    if (response.status === 401) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-    const list = document.getElementById('notes');
+    const notes = await response.json();
+    const list = document.getElementById('notesList');
+
     list.innerHTML = '';
 
     notes.forEach(n => {
@@ -28,5 +25,10 @@ async function loadNotes() {
         list.appendChild(li);
     });
 }
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    logout();
+    window.location.href = 'login.html';
+})
 
 loadNotes();
