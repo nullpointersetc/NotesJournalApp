@@ -1,5 +1,7 @@
 async function login(username, password) {
-    const response = await fatch('/auth/login', {
+    const restApiURL = window.appConfig.restApiURL;
+
+    const response = await fatch(`${restApiURL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userName: username, password: password })
@@ -25,6 +27,7 @@ document.getElementById('loginForm')?.addEventListener('submit',
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const status = document.getElementById('loginStatus');
+        status.textContent = "Please wait...";
 
         const token = await login(username, password);
         if (token) {

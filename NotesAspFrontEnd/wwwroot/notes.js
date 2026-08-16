@@ -1,11 +1,12 @@
 async function loadNotes() {
+    const restApiURL = window.appConfig.restApiURL;
     const token = localStorage.getItem('token');
 
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
-    const response = await fetch('https://localhost:5120/api/notes', {
+    const response = await fetch(`${restApiURL}/api/notes`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
