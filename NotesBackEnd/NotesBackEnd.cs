@@ -91,19 +91,29 @@ public class NotesBackEnd
                 .AddDbContext<NotesDbContext>(
                     options => options.UseSqlite(connectionString));
 
+        const string corsPolicyName = "NotesAspFrontEnd";
+
+        builder.Services.AddCors(
+            crossOriginResourceSharingOptions =>
+            crossOriginResourceSharingOptions.AddPolicy(
+                corsPolicyName,
+                policy => policy.WithOrigins("http://localhost:5188")
+                    .AllowAnyHeader().AllowAnyMethod()));
+
         WebApplication app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseCors(corsPolicyName);
         NotesRestAPI.MapEndpoints(app);
         UsersRestAPI.MapEndpoints(app);
 
         app.MapPost("/auth/login", (LoginRequest login) =>
         {
-            if (login.UserName == "darren" && login.Password == "password")
+            if (login.userName == "darren" && login.password == "password")
             {
-                var claims = new[]
+                Claim[] claims = new[]
                 {
-                    new Claim(ClaimTypes.Name, login.UserName)
+                    new Claim(ClaimTypes.Name, login.userName)
                 };
 
                 var key = new SymmetricSecurityKey(
@@ -116,7 +126,8 @@ public class NotesBackEnd
                     expires: DateTime.UtcNow.AddHours(1),
                     signingCredentials: creds);
 
-                return Results.Ok(new { token=new JwtSecurityTokenHandler().WriteToken(token)});
+                return Results.Ok(new JsonWebTokenWrapper(
+                    token: new JwtSecurityTokenHandler().WriteToken(token)));
             }
             else
             {
@@ -147,9 +158,28 @@ public class NotesBackEnd
 }
 
 
+#pragma warning disable IDE1006, IDE0290
 public class LoginRequest
 {
-    public string? UserName, Password;
+    public LoginRequest(string userName, string password)
+    {
+        myUserName = userName;
+        myPassword = password;
+    }
+
+    public string userName { get => myUserName; }
+    public string password { get => myPassword; }
+    private readonly string myUserName;
+    private readonly string myPassword;
+}
+
+
+#pragma warning disable IDE1006, IDE0290
+public class JsonWebTokenWrapper
+{
+    public JsonWebTokenWrapper(string token) { myToken = token; }
+    public string token { get => myToken; }
+    private readonly string myToken;
 }
 
 #endregion "NotesBackEnd/NotesBackEnd.cs"
