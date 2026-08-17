@@ -1,5 +1,6 @@
 /.vs
 /NotesAspFrontEnd/bin
+/NotesAspFrontEnd/NotesAspFrontEnd.csproj.user
 /NotesAspFrontEnd/obj
 /NotesBackEnd/bin
 /NotesBackEnd/NotesBackEnd.csproj.user
