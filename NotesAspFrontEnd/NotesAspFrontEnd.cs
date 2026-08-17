@@ -24,10 +24,10 @@ public static class NotesAspFrontEnd
                 HttpLoggingFields.Duration);
 
         string restApiURL = builder.Configuration["RestApiURL"]
-            ?? "http://localhost:5120";
+            ?? "http://localhost:17740";
 
-        if (restApiURL != "http://localhost:5120"
-            && restApiURL != "https://localhost:5120")
+        if (restApiURL != "http://localhost:17740"
+            && restApiURL != "https://localhost:17741")
         {
             Console.Error.WriteLine(
                 "RestApiURL is not set to a valid URL");

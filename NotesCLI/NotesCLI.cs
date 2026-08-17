@@ -65,7 +65,7 @@ public class NotesCLI
     }
 
 
-    private static string DefaultRestApiURI() => "http://localhost:5120";
+    private static string DefaultRestApiURI() => "http://localhost:17740";
 
 
     private static async Task CreateUseAsync(

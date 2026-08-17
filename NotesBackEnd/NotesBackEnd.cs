@@ -97,7 +97,27 @@ public class NotesBackEnd
             crossOriginResourceSharingOptions =>
             crossOriginResourceSharingOptions.AddPolicy(
                 corsPolicyName,
-                policy => policy.WithOrigins("http://localhost:5188")
+                policy => policy.WithOrigins(
+                    "http://localhost:17700", "http://localhost:17701",
+                    "http://localhost:17702", "http://localhost:17703",
+                    "http://localhost:17704", "http://localhost:17705",
+                    "http://localhost:17706", "http://localhost:17707",
+                    "http://localhost:17708", "http://localhost:17709",
+                    "http://localhost:17710", "http://localhost:17711",
+                    "http://localhost:17712", "http://localhost:17713",
+                    "http://localhost:17714", "http://localhost:17715",
+                    "http://localhost:17716", "http://localhost:17717",
+                    "http://localhost:17718", "http://localhost:17719",
+                    "https://localhost:17720", "https://localhost:17721",
+                    "https://localhost:17722", "https://localhost:17723",
+                    "https://localhost:17724", "https://localhost:17725",
+                    "https://localhost:17726", "https://localhost:17727",
+                    "https://localhost:17728", "https://localhost:17729",
+                    "https://localhost:17730", "https://localhost:17731",
+                    "https://localhost:17732", "https://localhost:17733",
+                    "https://localhost:17734", "https://localhost:17735",
+                    "https://localhost:17736", "https://localhost:17737",
+                    "https://localhost:17738", "https://localhost:17739")
                     .AllowAnyHeader().AllowAnyMethod()));
 
         builder.Services.AddHttpLogging(
