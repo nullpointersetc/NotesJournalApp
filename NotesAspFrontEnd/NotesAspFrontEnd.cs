@@ -1,6 +1,9 @@
 #region "NotesAspFrontEnd.cs"
 using Microsoft.AspNetCore.Builder;
 using Console = System.Console;
+using HttpLoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 #pragma warning disable IDE0130
 namespace NullPointersEtc.NotesJournalApp.NotesAspFrontEnd;
@@ -11,6 +14,14 @@ public static class NotesAspFrontEnd
     {
         WebApplicationBuilder builder =
             WebApplication.CreateBuilder(args);
+
+        builder.Services.AddHttpLogging(
+            logging => logging.LoggingFields =
+                HttpLoggingFields.Request |
+                HttpLoggingFields.RequestHeaders |
+                HttpLoggingFields.Response |
+                HttpLoggingFields.ResponseHeaders |
+                HttpLoggingFields.Duration);
 
         string restApiURL = builder.Configuration["RestApiURL"]
             ?? "http://localhost:5120";
@@ -30,6 +41,7 @@ public static class NotesAspFrontEnd
         WebApplication app = builder.Build();
         app.UseDefaultFiles();
         app.UseStaticFiles();
+        app.UseHttpLogging();
 
         app.MapGet("/config.js",
             () => Microsoft.AspNetCore.Http.Results.Content(

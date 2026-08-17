@@ -13,12 +13,13 @@ using Console = System.Console;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using SymmetricSecurityKey = Microsoft.IdentityModel.Tokens.SymmetricSecurityKey;
-using Encoding = System.Text.Encoding;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using DateTime = System.DateTime;
 using Microsoft.AspNetCore.Http;
+using HttpLoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields;
+using Microsoft.Extensions.Logging;
 
 #pragma warning disable IDE0130
 namespace NullPointersEtc.NotesJournalApp.NotesBackEnd;
@@ -66,8 +67,7 @@ public class NotesBackEnd
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes("super-secret-key-12345"))
+                    IssuerSigningKey = SuperSecretKey
                 });
 
         builder.Services.AddAuthorization();
@@ -100,6 +100,14 @@ public class NotesBackEnd
                 policy => policy.WithOrigins("http://localhost:5188")
                     .AllowAnyHeader().AllowAnyMethod()));
 
+        builder.Services.AddHttpLogging(
+            logging => logging.LoggingFields =
+                HttpLoggingFields.Request |
+                HttpLoggingFields.RequestHeaders |
+                HttpLoggingFields.Response |
+                HttpLoggingFields.ResponseHeaders |
+                HttpLoggingFields.Duration);
+
         WebApplication app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -107,32 +115,20 @@ public class NotesBackEnd
         NotesRestAPI.MapEndpoints(app);
         UsersRestAPI.MapEndpoints(app);
 
-        app.MapPost("/auth/login", (LoginRequest login) =>
+        app.MapPost("/auth/login", (LoginRequest login, ILogger<NotesBackEnd> log) =>
         {
+            log.LogInformation("Login attempt for user: {userName}", login.userName);
+
             if (login.userName == "darren" && login.password == "password")
-            {
-                Claim[] claims = new[]
-                {
-                    new Claim(ClaimTypes.Name, login.userName)
-                };
-
-                var key = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes("super-secret-key-12345"));
-
-                var creds = new SigningCredentials(
-                    key, SecurityAlgorithms.HmacSha256);
-
-                var token = new JwtSecurityToken(claims: claims,
-                    expires: DateTime.UtcNow.AddHours(1),
-                    signingCredentials: creds);
-
                 return Results.Ok(new JsonWebTokenWrapper(
-                    token: new JwtSecurityTokenHandler().WriteToken(token)));
-            }
+                    token: new JwtSecurityTokenHandler().WriteToken(
+                        new JwtSecurityToken(
+                            claims: [new Claim(ClaimTypes.Name, login.userName)],
+                            expires: DateTime.UtcNow.AddHours(1),
+                            signingCredentials: new SigningCredentials(
+                                SuperSecretKey, SecurityAlgorithms.HmacSha256)))));
             else
-            {
                 return Results.Unauthorized();
-            }
         });
 
         using (IServiceScope scope = app.Services.CreateScope())
@@ -153,8 +149,63 @@ public class NotesBackEnd
             app.UseSwaggerUI();
         }
 
+        app.UseHttpLogging();
         app.Run();
     }
+
+
+    private static SymmetricSecurityKey SuperSecretKey
+    {
+        get => new(key: [SUPER_SECRET_KEY_1st, SUPER_SECRET_KEY_2nd,
+            SUPER_SECRET_KEY_3rd, SUPER_SECRET_KEY_4th,
+            SUPER_SECRET_KEY_5th, SUPER_SECRET_KEY_6th,
+            SUPER_SECRET_KEY_7th, SUPER_SECRET_KEY_8th,
+            SUPER_SECRET_KEY_9th, SUPER_SECRET_KEY_10th,
+            SUPER_SECRET_KEY_11th, SUPER_SECRET_KEY_12th,
+            SUPER_SECRET_KEY_13th, SUPER_SECRET_KEY_14th,
+            SUPER_SECRET_KEY_15th, SUPER_SECRET_KEY_16th,
+            SUPER_SECRET_KEY_17th, SUPER_SECRET_KEY_18th,
+            SUPER_SECRET_KEY_19th, SUPER_SECRET_KEY_20th,
+            SUPER_SECRET_KEY_21st, SUPER_SECRET_KEY_22nd,
+            SUPER_SECRET_KEY_23rd, SUPER_SECRET_KEY_24th,
+            SUPER_SECRET_KEY_25th, SUPER_SECRET_KEY_26th,
+            SUPER_SECRET_KEY_27th, SUPER_SECRET_KEY_28th,
+            SUPER_SECRET_KEY_29th, SUPER_SECRET_KEY_30th,
+            SUPER_SECRET_KEY_31st, SUPER_SECRET_KEY_32nd]);
+    }
+
+    private const byte SUPER_SECRET_KEY_1st = (byte)230,
+        SUPER_SECRET_KEY_2nd = (byte)187,
+        SUPER_SECRET_KEY_3rd = (byte)191,
+        SUPER_SECRET_KEY_4th = (byte)194,
+        SUPER_SECRET_KEY_5th = (byte)183,
+        SUPER_SECRET_KEY_6th = (byte)143,
+        SUPER_SECRET_KEY_7th = (byte)117,
+        SUPER_SECRET_KEY_8th = (byte)73,
+        SUPER_SECRET_KEY_9th = (byte)183,
+        SUPER_SECRET_KEY_10th = (byte)86,
+        SUPER_SECRET_KEY_11th = (byte)171,
+        SUPER_SECRET_KEY_12th = (byte)186,
+        SUPER_SECRET_KEY_13th = (byte)69,
+        SUPER_SECRET_KEY_14th = (byte)2,
+        SUPER_SECRET_KEY_15th = (byte)228,
+        SUPER_SECRET_KEY_16th = (byte)109,
+        SUPER_SECRET_KEY_17th = (byte)18,
+        SUPER_SECRET_KEY_18th = (byte)153,
+        SUPER_SECRET_KEY_19th = (byte)175,
+        SUPER_SECRET_KEY_20th = (byte)172,
+        SUPER_SECRET_KEY_21st = (byte)172,
+        SUPER_SECRET_KEY_22nd = (byte)233,
+        SUPER_SECRET_KEY_23rd = (byte)192,
+        SUPER_SECRET_KEY_24th = (byte)70,
+        SUPER_SECRET_KEY_25th = (byte)169,
+        SUPER_SECRET_KEY_26th = (byte)153,
+        SUPER_SECRET_KEY_27th = (byte)28,
+        SUPER_SECRET_KEY_28th = (byte)17,
+        SUPER_SECRET_KEY_29th = (byte)155,
+        SUPER_SECRET_KEY_30th = (byte)167,
+        SUPER_SECRET_KEY_31st = (byte)113,
+        SUPER_SECRET_KEY_32nd = (byte)231;
 }
 
 
