@@ -1,7 +1,7 @@
 async function login(username, password) {
     const restApiURL = window.appConfig.restApiURL;
 
-    const response = await fatch(`${restApiURL}/auth/login`, {
+    const response = await fetch(`${restApiURL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userName: username, password: password })
