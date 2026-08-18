@@ -47,7 +47,9 @@ public static class NotesAspFrontEnd
             () => Microsoft.AspNetCore.Http.Results.Content(
                 configDotJs, "application/javascript"));
 
-        Console.WriteLine("Serving the front end on " + restApiURL);
+        app.Logger.LogInformation(
+            "REST API is assumed to be at {restApiURL}", restApiURL);
+
         app.Run();
     }
 }
