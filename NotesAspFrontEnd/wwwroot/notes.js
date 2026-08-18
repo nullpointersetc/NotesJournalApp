@@ -3,7 +3,7 @@ async function loadNotes() {
     const token = localStorage.getItem('token');
 
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
     const response = await fetch(`${restApiURL}/api/notes`, {
@@ -11,7 +11,7 @@ async function loadNotes() {
     });
 
     if (response.status === 401) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -29,7 +29,7 @@ async function loadNotes() {
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => {
     logout();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 })
 
 loadNotes();
