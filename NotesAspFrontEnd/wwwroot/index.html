@@ -36,6 +36,24 @@
             background: wheat;
             color: black;
         }
+
+        div.userNameRow {
+            margin-bottom: 1em;
+        }
+
+        div.passwordRow {
+            margin-bottom: 1em;
+        }
+
+        label.loginLabel {
+            display: inline-block;
+            min-width: 7em;
+        }
+
+        input.loginInput {
+            display: inline-block;
+            min-width: 12em;
+        }
     </style>
 </head>
 
@@ -43,11 +61,13 @@
     <h1 class="topbar">Notes Journal App</h1>
 
     <form id="loginForm" class="loginForm">
-        <div>
-            <label for="username">Username: <input id="username" type="text" /></label>
+        <div class="userNameRow">
+            <label for="username" class="loginLabel">Username:</label>
+            <input id="username" type="text" class="loginInput" />
         </div>
-        <div>
-            <label for="password">Password:&#160; <input id="password" type="password" /></label>
+        <div class="passwordRow">
+            <label for="password" class="loginLabel">Password:</label>
+            <input id="password" type="password" class="loginInput" />
             <button type="submit">Login</button>
         </div>
         <div id="loginStatus"></div>
