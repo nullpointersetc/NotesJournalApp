@@ -42,6 +42,14 @@ public static class NotesRestAPI
             .Accepts<CreateNoteDTO>("application/json")
             .Produces<NoteDTO>(StatusCodes.Status200OK);
 
+        app.MapGet(GetAllNotesURI, HttpGetAllNotesAsync)
+            .RequireAuthorization()
+            .WithTags("Notes")
+            .WithSummary("Get all notes")
+            .WithDescription("Gets all notes that are currently in the system.")
+            .Produces<System.Collections.Generic.IEnumerable<NoteDTO>>(
+                StatusCodes.Status200OK);
+
         app.MapGet(GetNoteURI, HttpGetNoteByNoteIdAsync)
             .RequireAuthorization()
             .WithTags("Notes")
@@ -50,7 +58,7 @@ public static class NotesRestAPI
             .Produces<NoteDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
-        app.MapPut(GetNoteURI, HttpPutUpdateNoteByNoteIdAsync)
+        app.MapPut(UpdateNoteURI, HttpPutUpdateNoteByNoteIdAsync)
             .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Update a note")
@@ -59,7 +67,7 @@ public static class NotesRestAPI
             .Produces<NoteDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
-        app.MapDelete(GetNoteURI, HttpDeleteNoteByNoteIdAsync)
+        app.MapDelete(DeleteNoteURI, HttpDeleteNoteByNoteIdAsync)
             .RequireAuthorization()
             .WithTags("Notes")
             .WithSummary("Delete a note")
@@ -90,6 +98,16 @@ public static class NotesRestAPI
     }
 
 
+    private const string GetAllNotesURI = "/api/notes";
+
+    public static async TaskReturningIResult
+        HttpGetAllNotesAsync(INoteHandler handler)
+    {
+        var notes = await handler.GetAllNotesWithHandlerAsync();
+        return Results.Ok(notes.Select<Note, NoteDTO>(n => new NoteDTO(n)));
+    }
+
+
     private const string GetNoteURI = "/api/notes/{noteID:guid:required}";
 
     public static async TaskReturningIResult
@@ -100,6 +118,9 @@ public static class NotesRestAPI
         return Results.Ok(new NoteDTO(note));
     }
 
+
+    private const string UpdateNoteURI = "/api/notes/{noteID:guid:required}";
+
     public static async TaskReturningIResult
         HttpPutUpdateNoteByNoteIdAsync(
             INoteHandler handler, Guid noteID, UpdateNoteDTO dto)
@@ -108,6 +129,7 @@ public static class NotesRestAPI
         return Results.Ok(new NoteDTO(updated));
     }
 
+    private const string DeleteNoteURI = "/api/notes/{noteID:guid:required}";
 
     public static async TaskReturningIResult
         HttpDeleteNoteByNoteIdAsync(
