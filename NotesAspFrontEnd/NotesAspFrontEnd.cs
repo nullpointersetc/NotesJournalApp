@@ -1,9 +1,12 @@
 #region "NotesAspFrontEnd.cs"
+using System;
 using Microsoft.AspNetCore.Builder;
-using Console = System.Console;
-using HttpLoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using HttpLoggingFields =
+    Microsoft.AspNetCore.HttpLogging.HttpLoggingFields;
 
 #pragma warning disable IDE0130
 namespace NullPointersEtc.NotesJournalApp.NotesAspFrontEnd;
@@ -35,22 +38,55 @@ public static class NotesAspFrontEnd
             return;
         }
 
-        string configDotJs = "window.appConfig = { restApiURL: '" +
-            restApiURL + "' };";
+        builder.Services.AddSingleton(new System.Net.Http.HttpClient()
+        {
+            BaseAddress = new System.Uri(restApiURL)
+        });
+
+        builder.Services.AddSingleton<NotesSessions>();
 
         WebApplication app = builder.Build();
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
         app.UseHttpLogging();
-
-        app.MapGet("/config.js",
-            () => Microsoft.AspNetCore.Http.Results.Content(
-                configDotJs, "application/javascript"));
 
         app.Logger.LogInformation(
             "REST API is assumed to be at {restApiURL}", restApiURL);
 
+        app.MapGet("/", NotesAspFrontEnd.HttpGetDefault);
+
+        app.MapPost(LoginPage.LoginPageURL, LoginPage.HttpPostLogin);
+
+        app.MapGet(NotesPage.NotesPageURL, NotesPage.HttpGetNotes);
+
+        app.MapPost("/logout", NotesAspFrontEnd.HttpPostLogout);
+
         app.Run();
+    }
+
+
+    private static IResult HttpGetDefault(
+        HttpContext context, NotesSessions sessions)
+    {
+        Guid? sessionID = SessionIDs.GetSessionID(context);
+
+        if (sessionID.HasValue && sessions.Contains(sessionID.Value))
+            return Results.Redirect(NotesPage.NotesPageURL);
+        else
+            return LoginPage.LoginPageWithoutError();
+    }
+
+
+    private static IResult HttpPostLogout(
+        HttpContext context,
+        NotesSessions sessions)
+    {
+        Guid? sessionID = SessionIDs.GetSessionID(context);
+
+        if (sessionID is not null)
+            sessions.Remove(sessionID.Value);
+
+        context.Response.Cookies.Delete(CookieNames.SessionCookieName);
+
+        return Results.Redirect("/");
     }
 }
 #endregion "NotesAspFrontEnd.cs"
